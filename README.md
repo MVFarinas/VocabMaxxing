@@ -12,3 +12,5 @@ Official repository for Mark, Nawaf, and Saad for HackED 2026
 - Test Cases
 
 - Present features
+  - Present competition + pain points
+  - How our product solves this friction
