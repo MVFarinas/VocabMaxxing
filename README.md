@@ -14,3 +14,10 @@ Official repository for Mark, Nawaf, and Saad for HackED 2026
 - Present features
   - Present competition + pain points
   - How our product solves this friction
+  - Consider Business Model
+
+## Decisions:
+- VocabMaxxing Application on Android Studio
+  - Kotlin + Kotr
+ 
+- User Stories:
