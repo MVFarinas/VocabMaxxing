@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vocabmaxxing.ScoringEngineTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-02-22T03:46:56" hostname="NAWAFLAPTOP" time="0.205">
+  <properties/>
+  <testcase name="evaluate returns positive scores for valid sentence" classname="com.vocabmaxxing.ScoringEngineTest" time="0.13"/>
+  <testcase name="AI JSON response validation" classname="com.vocabmaxxing.ScoringEngineTest" time="0.066"/>
+  <testcase name="scoreGrammar proper sentence scores high" classname="com.vocabmaxxing.ScoringEngineTest" time="0.001"/>
+  <testcase name="scoreGrammar missing capitalization penalized" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="checkWordPresence handles multi-word targets" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="scoreSentenceLength short sentence scores low" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="checkWordPresence detects exact match" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="checkWordPresence returns false when absent" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="scoreStructuralComplexity complex sentence high" classname="com.vocabmaxxing.ScoringEngineTest" time="0.001"/>
+  <testcase name="scoreSentenceLength medium sentence scores well" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="checkWordPresence detects morphological variant" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <testcase name="AI JSON handles markdown fences" classname="com.vocabmaxxing.ScoringEngineTest" time="0.003"/>
+  <testcase name="evaluate returns zero when word absent" classname="com.vocabmaxxing.ScoringEngineTest" time="0.001"/>
+  <testcase name="scoreStructuralComplexity simple sentence low" classname="com.vocabmaxxing.ScoringEngineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
