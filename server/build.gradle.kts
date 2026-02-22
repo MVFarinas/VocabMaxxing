@@ -9,11 +9,16 @@ group = "com.vocabmaxxing"
 version = "1.0.0"
 
 application {
-    mainClass.set("com.vocabmaxxing.ApplicationKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 repositories {
     mavenCentral()
+}
+
+// Use a JVM toolchain to ensure consistent Java versions
+kotlin {
+    jvmToolchain(17)
 }
 
 val ktorVersion = "2.3.7"
@@ -62,8 +67,4 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.22")
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
 }

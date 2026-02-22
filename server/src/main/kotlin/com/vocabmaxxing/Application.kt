@@ -8,30 +8,25 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
-
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-}
+import org.slf4j.event.Level
 
 fun Application.module() {
-    // Database
+
+    /* ---------------- DATABASE ---------------- */
     DatabaseFactory.init(environment)
     WordSeeder.seed()
 
-    // JWT
+    /* ---------------- JWT ---------------- */
     JwtConfig.init(environment)
 
-    // Plugins
+    /* ---------------- CONTENT NEGOTIATION ---------------- */
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -40,6 +35,7 @@ fun Application.module() {
         })
     }
 
+    /* ---------------- CORS ---------------- */
     install(CORS) {
         anyHost()
         allowMethod(HttpMethod.Get)
@@ -50,35 +46,58 @@ fun Application.module() {
         allowHeader(HttpHeaders.Authorization)
     }
 
-    install(CallLogging)
+    /* ---------------- LOGGING ---------------- */
+    install(CallLogging) {
+        level = Level.INFO
+    }
 
+    /* ---------------- ERROR HANDLING ---------------- */
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.application.environment.log.error("Unhandled exception", cause)
             call.respond(
                 HttpStatusCode.InternalServerError,
-                com.vocabmaxxing.models.ErrorResponse("Internal server error.")
+                mapOf("error" to "Internal server error")
             )
         }
     }
 
+    /* ---------------- AUTH ---------------- */
     install(Authentication) {
         JwtConfig.configureAuth(this)
     }
 
-    // OpenAI key
-    val openAiApiKey = environment.config.propertyOrNull("openai.apiKey")?.getString() ?: ""
+    /* ---------------- OPENAI KEY ---------------- */
+    val openAiApiKey =
+        environment.config.propertyOrNull("openai.apiKey")?.getString() ?: ""
 
-    // Routes
+    /* ---------------- ROUTES ---------------- */
     routing {
+
         // Health check
-        get("/api/health") {
-            call.respond(HttpStatusCode.OK, mapOf("status" to "ok", "service" to "vocabmaxxing"))
+        get("/health") {
+            val dbStatus = if (DatabaseFactory.isConnected()) "connected" else "disconnected"
+            call.respond(
+                HttpStatusCode.OK,
+                mapOf(
+                    "status" to "Backend running",
+                    "database" to dbStatus
+                )
+            )
+        }
+
+        get("/db-check") {
+            if (DatabaseFactory.isConnected()) {
+                call.respond(HttpStatusCode.OK, mapOf("status" to "Database connection successful"))
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("status" to "Database connection failed"))
+            }
         }
 
         authRoutes()
         wordRoutes()
         attemptRoutes(openAiApiKey)
         dashboardRoutes()
+        aiRoutes(openAiApiKey)
     }
 }

@@ -10,7 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,11 +28,11 @@ fun Route.wordRoutes() {
 
             val result = transaction {
                 // Get today's attempts count
-                val todayAttempts = Attempts.selectAll().where {
-                    (Attempts.userId eq userId) and
-                    (Attempts.createdAt greaterEq todayStart) and
-                    (Attempts.createdAt lessEq todayEnd)
-                }.count()
+                val todayAttempts = Attempts.selectAll()
+                    .where { Attempts.userId eq userId }
+                    .andWhere { Attempts.createdAt greaterEq todayStart }
+                    .andWhere { Attempts.createdAt lessEq todayEnd }
+                    .count()
 
                 // Get all previously attempted word IDs
                 val attemptedWordIds = Attempts.selectAll()
@@ -48,10 +48,14 @@ fun Route.wordRoutes() {
                     .toCharArray().sumOf { it.code }
 
                 for ((index, tier) in tiers.withIndex()) {
-                    val available = Words.selectAll()
-                        .where { (Words.tier eq tier) }
-                        .filter { it[Words.id] !in attemptedWordIds }
-                        .sortedBy { it[Words.rarityScore] }
+                    val query = Words.selectAll()
+                        .where { Words.tier eq tier }
+
+                    if (attemptedWordIds.isNotEmpty()) {
+                        query.andWhere { Words.id notInList attemptedWordIds }
+                    }
+
+                    val available = query.orderBy(Words.rarityScore to SortOrder.ASC).toList()
 
                     val wordRow = if (available.isNotEmpty()) {
                         val tierOffset = when (index) {

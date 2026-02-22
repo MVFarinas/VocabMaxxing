@@ -10,8 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -54,19 +53,21 @@ fun Route.dashboardRoutes() {
                 val sevenDaysAgo = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.MIN)
                 val fourteenDaysAgo = LocalDateTime.of(LocalDate.now().minusDays(14), LocalTime.MIN)
 
-                val last7 = Attempts.selectAll().where {
-                    (Attempts.userId eq userId) and (Attempts.createdAt greaterEq sevenDaysAgo)
-                }.map { it[Attempts.totalScore] to it[Attempts.semanticScore] to it[Attempts.structuralScore] }
+                val last7 = Attempts.selectAll()
+                    .where { Attempts.userId eq userId }
+                    .andWhere { Attempts.createdAt greaterEq sevenDaysAgo }
+                    .map { it[Attempts.totalScore] to it[Attempts.semanticScore] to it[Attempts.structuralScore] }
 
-                val prev7 = Attempts.selectAll().where {
-                    (Attempts.userId eq userId) and
-                    (Attempts.createdAt greaterEq fourteenDaysAgo) and
-                    (Attempts.createdAt less sevenDaysAgo)
-                }.map { it[Attempts.totalScore] }
+                val prev7 = Attempts.selectAll()
+                    .where { Attempts.userId eq userId }
+                    .andWhere { Attempts.createdAt greaterEq fourteenDaysAgo }
+                    .andWhere { Attempts.createdAt less sevenDaysAgo }
+                    .map { it[Attempts.totalScore] }
 
-                val last7Scores = Attempts.selectAll().where {
-                    (Attempts.userId eq userId) and (Attempts.createdAt greaterEq sevenDaysAgo)
-                }.toList()
+                val last7Scores = Attempts.selectAll()
+                    .where { Attempts.userId eq userId }
+                    .andWhere { Attempts.createdAt greaterEq sevenDaysAgo }
+                    .toList()
 
                 val last7Avg = if (last7Scores.isNotEmpty()) {
                     last7Scores.map { it[Attempts.totalScore] }.average()
