@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.vocabmaxxing.app-mergeDebugResources-57:/values-xlarge-v4/values-xlarge-v4.xml",
+            "outputFile": "com.vocabmaxxing.app-mergeDebugResources-2:/values-xlarge-v4/values-xlarge-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\markf\\.gradle\\caches\\9.0.0\\transforms\\0be6f4bc9a19af76f2b59d08f09a077a\\transformed\\appcompat-1.6.1\\res\\values-xlarge-v4\\values-xlarge-v4.xml",
+                    "source": "C:\\Users\\nawaf\\Downloads\\Gradle\\gradle-9.3.1\\caches\\9.0-milestone-1\\transforms\\1f1138a98d33d591fb00ca93b94c30b3\\transformed\\appcompat-1.6.1\\res\\values-xlarge-v4\\values-xlarge-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7",
                         "startColumns": "4,4,4,4,4,4",

@@ -89,7 +89,7 @@ fun DailyScreen(
                 Text("YOUR SENTENCE", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                     color = TextMuted, letterSpacing = 1.5.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("\u201C$sentence\u201D", fontSize = 14.sp, color = TextSecondary,
+                Text("“$sentence”", fontSize = 14.sp, color = TextSecondary,
                     fontStyle = FontStyle.Italic, lineHeight = 20.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("Target: ${selectedWord?.word ?: ""}", fontSize = 12.sp, color = Accent)
@@ -156,7 +156,7 @@ fun DailyScreen(
                     Text(result.feedback.idiomaticFeedback,
                         fontSize = 14.sp, color = TextSecondary, lineHeight = 22.sp)
                     Spacer(Modifier.height(12.dp))
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.03f))
+                    Divider(color = Color.White.copy(alpha = 0.03f))
                     Spacer(Modifier.height(12.dp))
                     Text("SUGGESTION", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                         color = TextMuted, letterSpacing = 1.5.sp)

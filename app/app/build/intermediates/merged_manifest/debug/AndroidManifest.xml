@@ -25,7 +25,8 @@
         android:label="VocabMaxxing"
         android:supportsRtl="true"
         android:testOnly="true"
-        android:theme="@style/Theme.VocabMaxxing" >
+        android:theme="@style/Theme.VocabMaxxing"
+        android:usesCleartextTraffic="true" >
         <activity
             android:name="com.vocabmaxxing.app.MainActivity"
             android:exported="true"

@@ -8,7 +8,8 @@
         android:allowBackup="true"
         android:label="VocabMaxxing"
         android:supportsRtl="true"
-        android:theme="@style/Theme.VocabMaxxing">
+        android:theme="@style/Theme.VocabMaxxing"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".MainActivity"
