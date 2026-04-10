@@ -1,5 +1,6 @@
-# HackED2026
-Official repository for Mark, Nawaf, and Saad for HackED 2026 
+# Origin
+- Initiated during HackED2026... continued April 2026
+
 ## To Do:
 - Spitball Ideas -> which streams to go into
   - Create User Stories
