@@ -53,11 +53,6 @@ fun Route.dashboardRoutes() {
                 val sevenDaysAgo = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.MIN)
                 val fourteenDaysAgo = LocalDateTime.of(LocalDate.now().minusDays(14), LocalTime.MIN)
 
-                val last7 = Attempts.selectAll()
-                    .where { Attempts.userId eq userId }
-                    .andWhere { Attempts.createdAt greaterEq sevenDaysAgo }
-                    .map { it[Attempts.totalScore] to it[Attempts.semanticScore] to it[Attempts.structuralScore] }
-
                 val prev7 = Attempts.selectAll()
                     .where { Attempts.userId eq userId }
                     .andWhere { Attempts.createdAt greaterEq fourteenDaysAgo }

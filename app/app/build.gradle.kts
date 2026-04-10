@@ -15,8 +15,13 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        // Base URL for the Ktor backend — override in local.properties or CI
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080\"")
+        // Base URL for the Ktor backend — set API_BASE_URL in local.properties for real devices
+        val localProps = java.util.Properties().also { props ->
+            rootProject.file("local.properties").takeIf { it.exists() }
+                ?.inputStream()?.use { props.load(it) }
+        }
+        val apiBaseUrl = localProps.getProperty("API_BASE_URL", "http://10.0.2.2:8080")
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildFeatures {
@@ -66,9 +71,6 @@ dependencies {
 
     // DataStore for token persistence
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-
-    // Vico charts
-    implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

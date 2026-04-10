@@ -95,7 +95,7 @@ fun Route.attemptRoutes(openAiApiKey: String) {
             }
 
             // Step 4: Update user stats
-            val (newRpi, xpGain, newStreak) = transaction {
+            val statsTriple = transaction {
                 // RPI: rolling avg of last 20 attempts
                 val recentScores = Attempts.selectAll()
                     .where { Attempts.userId eq userId }
@@ -110,10 +110,9 @@ fun Route.attemptRoutes(openAiApiKey: String) {
                 val xp = (totalScore / 5.0).roundToInt()
 
                 // Streak calculation
-                val user = Users.selectAll().where { Users.id eq userId }.first()
+                val user = Users.selectAll().where { Users.id eq userId }.firstOrNull()
+                    ?: return@transaction null
                 val lastActive = user[Users.lastActiveAt]
-                val yesterday = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN)
-                val today = LocalDateTime.of(LocalDate.now(), LocalTime.MIN)
 
                 val streak = when {
                     lastActive == null -> 1
@@ -132,6 +131,12 @@ fun Route.attemptRoutes(openAiApiKey: String) {
 
                 Triple((rpi * 10).roundToInt() / 10.0, xp, streak)
             }
+
+            if (statsTriple == null) {
+                call.respond(HttpStatusCode.NotFound, ErrorResponse("User not found."))
+                return@post
+            }
+            val (newRpi, xpGain, newStreak) = statsTriple
 
             val response = EvaluationResponse(
                 attemptId = attemptId,
