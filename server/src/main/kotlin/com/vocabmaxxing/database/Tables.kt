@@ -5,9 +5,8 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import java.time.LocalDateTime
 
 object Users : Table("users") {
-    val id = varchar("id", 36)
+    val id = varchar("id", 36)  // Firebase UID (28 chars, fits in 36)
     val email = varchar("email", 255).uniqueIndex()
-    val passwordHash = varchar("password_hash", 255)
     val xp = integer("xp").default(0)
     val streak = integer("streak").default(0)
     val rpi = double("rpi").default(0.0)

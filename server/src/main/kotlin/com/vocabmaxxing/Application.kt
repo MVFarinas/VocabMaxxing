@@ -2,12 +2,14 @@ package com.vocabmaxxing
 
 import com.vocabmaxxing.database.DatabaseFactory
 import com.vocabmaxxing.database.WordSeeder
-import com.vocabmaxxing.plugins.JwtConfig
+import com.vocabmaxxing.plugins.FirebaseAdmin
+import com.vocabmaxxing.plugins.FirebasePrincipal
 import com.vocabmaxxing.routes.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.bearer
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -23,8 +25,8 @@ fun Application.module() {
     DatabaseFactory.init(environment)
     WordSeeder.seed()
 
-    /* ---------------- JWT ---------------- */
-    JwtConfig.init(environment)
+    /* ---------------- FIREBASE ---------------- */
+    FirebaseAdmin.init(environment)
 
     /* ---------------- CONTENT NEGOTIATION ---------------- */
     install(ContentNegotiation) {
@@ -64,7 +66,16 @@ fun Application.module() {
 
     /* ---------------- AUTH ---------------- */
     install(Authentication) {
-        JwtConfig.configureAuth(this)
+        bearer("auth-jwt") {
+            authenticate { credential ->
+                try {
+                    val firebaseToken = FirebaseAdmin.verifyIdToken(credential.token)
+                    FirebasePrincipal(uid = firebaseToken.uid, email = firebaseToken.email ?: "")
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
     }
 
     /* ---------------- OPENAI KEY ---------------- */

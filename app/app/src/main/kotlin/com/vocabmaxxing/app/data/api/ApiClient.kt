@@ -32,29 +32,12 @@ class ApiClient {
     }
 
     // ─── Auth ────────────────────────────────────────────────────
+    // Called once after Firebase sign-in to create the user record in our DB.
 
-    suspend fun register(email: String, password: String): Result<AuthResponse> {
+    suspend fun syncUser(token: String): Result<SyncResponse> {
         return try {
-            val response = client.post("$baseUrl/api/auth/register") {
-                contentType(ContentType.Application.Json)
-                setBody(RegisterRequest(email, password))
-            }
-            if (response.status.isSuccess()) {
-                Result.success(response.body())
-            } else {
-                val error = response.body<ErrorResponse>()
-                Result.failure(Exception(error.error))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun login(email: String, password: String): Result<AuthResponse> {
-        return try {
-            val response = client.post("$baseUrl/api/auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(LoginRequest(email, password))
+            val response = client.post("$baseUrl/api/auth/sync") {
+                header("Authorization", "Bearer $token")
             }
             if (response.status.isSuccess()) {
                 Result.success(response.body())

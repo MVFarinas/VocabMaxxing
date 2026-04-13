@@ -15,6 +15,6 @@ class VocabMaxxingApp : Application() {
     override fun onCreate() {
         super.onCreate()
         apiClient = ApiClient()
-        tokenManager = TokenManager(this)
+        tokenManager = TokenManager()
     }
 }

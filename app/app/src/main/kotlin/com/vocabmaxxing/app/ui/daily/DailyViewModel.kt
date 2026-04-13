@@ -6,7 +6,9 @@ import com.vocabmaxxing.app.data.api.ApiClient
 import com.vocabmaxxing.app.data.model.EvaluationResponse
 import com.vocabmaxxing.app.data.model.WordDto
 import com.vocabmaxxing.app.data.repository.TokenManager
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class DailyUiState(
@@ -33,7 +35,7 @@ class DailyViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-            val token = tokenManager.token.first()
+            val token = tokenManager.getFreshToken()
             if (token == null) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = "Not authenticated.")
                 return@launch
@@ -59,7 +61,7 @@ class DailyViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSubmitting = true, error = null)
 
-            val token = tokenManager.token.first()
+            val token = tokenManager.getFreshToken()
             if (token == null) {
                 _uiState.value = _uiState.value.copy(isSubmitting = false, error = "Not authenticated.")
                 return@launch

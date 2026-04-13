@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.vocabmaxxing.app.data.api.ApiClient
 import com.vocabmaxxing.app.data.model.DashboardResponse
 import com.vocabmaxxing.app.data.repository.TokenManager
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class DashboardUiState(
@@ -29,7 +31,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            val token = tokenManager.token.first() ?: return@launch
+            val token = tokenManager.getFreshToken() ?: return@launch
 
             apiClient.getDashboard(token)
                 .onSuccess { response ->

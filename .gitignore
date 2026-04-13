@@ -5,3 +5,8 @@ server/build/
 local.properties
 .idea/
 *.iml
+
+# Firebase — contains API keys, do not commit
+google-services.json
+service-account*.json
+service-account*.txt
