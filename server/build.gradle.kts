@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.serialization") version "1.9.22"
     id("io.ktor.plugin") version "2.3.7"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     application
 }
 
@@ -69,10 +68,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.22")
 }
 
-tasks.withType<com.github.johnrengelman.shadow.tasks.ShadowJar> {
-    archiveFileName.set("server.jar")
-    manifest {
-        attributes["Main-Class"] = "io.ktor.server.netty.EngineMain"
+ktor {
+    fatJar {
+        archiveFileName.set("server.jar")
     }
-    mergeServiceFiles()
 }
