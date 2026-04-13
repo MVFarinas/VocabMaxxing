@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -17,7 +19,7 @@ android {
         versionName = "1.0.0"
 
         // Base URL for the Ktor backend — set API_BASE_URL in local.properties for real devices
-        val localProps = java.util.Properties().also { props ->
+        val localProps = Properties().also { props ->
             rootProject.file("local.properties").takeIf { it.exists() }
                 ?.inputStream()?.use { props.load(it) }
         }
