@@ -1,12 +1,37 @@
+# Build outputs
 .gradle/
 build/
 app/build/
 server/build/
-local.properties
+out/
+
+# Android Studio / IntelliJ
 .idea/
 *.iml
+*.ipr
+*.iws
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local config — machine-specific, never commit
+local.properties
+server/local.properties
 
 # Firebase — contains API keys, do not commit
 google-services.json
 service-account*.json
 service-account*.txt
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+
+# Kotlin/Java compiled files
+*.class
+*.jar
+*.war
+*.ear

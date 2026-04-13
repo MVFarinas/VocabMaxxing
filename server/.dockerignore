@@ -1,0 +1,21 @@
+# Build cache — rebuilt inside Docker
+build/
+.gradle/
+
+# IDE files
+.idea/
+*.iml
+
+# Credentials — must NEVER be baked into the image
+# These are injected at runtime via Railway env vars
+service-account*.json
+service-account*.txt
+
+# Local dev config
+local.properties
+
+# Docs and scripts not needed at runtime
+*.md
+
+# macOS
+.DS_Store
