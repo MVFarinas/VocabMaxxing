@@ -123,7 +123,13 @@ fun DailyScreen(
             ) {
                 Text("SCORE BREAKDOWN", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                     color = TextMuted, letterSpacing = 1.5.sp)
-                ScoreBar("Semantic Precision", result.scores.semanticScore, 40)
+                if (result.feedback != null) {
+                    ScoreBar("Context", result.feedback.contextScore, 15)
+                    ScoreBar("AI Grammar", result.feedback.grammarScore, 10)
+                    ScoreBar("Complexity", result.feedback.complexityScore, 15)
+                } else {
+                    ScoreBar("Semantic Precision", result.scores.semanticScore, 40)
+                }
                 ScoreBar("Structural Complexity", result.scores.structuralScore, 20)
                 ScoreBar("Vocabulary Density", result.scores.vocabScore, 20)
                 ScoreBar("Grammar Stability", result.scores.grammarScore, 20)

@@ -109,6 +109,5 @@ fun Application.module() {
         wordRoutes()
         attemptRoutes(openAiApiKey)
         dashboardRoutes()
-        aiRoutes(openAiApiKey)
     }
 }

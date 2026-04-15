@@ -46,7 +46,10 @@ data class ScoreBreakdown(
 @Serializable
 data class AiFeedback(
     val idiomaticFeedback: String,
-    val improvementSuggestion: String
+    val improvementSuggestion: String,
+    val contextScore: Int = 0,
+    val grammarScore: Int = 0,
+    val complexityScore: Int = 0
 )
 
 @Serializable

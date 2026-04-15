@@ -150,7 +150,10 @@ fun Route.attemptRoutes(openAiApiKey: String) {
                 feedback = semanticResult?.let {
                     AiFeedback(
                         idiomaticFeedback = it.idiomatic_feedback,
-                        improvementSuggestion = it.improvement_suggestion
+                        improvementSuggestion = it.improvement_suggestion,
+                        contextScore = it.context_score,
+                        grammarScore = it.grammar_score,
+                        complexityScore = it.complexity_score
                     )
                 },
                 feedbackText = feedbackText,

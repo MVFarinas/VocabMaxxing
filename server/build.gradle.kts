@@ -18,7 +18,7 @@ repositories {
 
 // Use a JVM toolchain to ensure consistent Java versions
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 val ktorVersion = "2.3.7"
