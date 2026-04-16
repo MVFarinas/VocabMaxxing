@@ -78,9 +78,11 @@ fun Application.module() {
         }
     }
 
-    /* ---------------- OPENAI KEY ---------------- */
-    val openAiApiKey =
-        environment.config.propertyOrNull("openai.apiKey")?.getString() ?: ""
+    /* ---------------- AI PROVIDER CONFIG ---------------- */
+    val aiApiKey = environment.config.propertyOrNull("ai.apiKey")?.getString() ?: ""
+    val aiBaseUrl = environment.config.propertyOrNull("ai.baseUrl")?.getString()
+        ?: "https://api.openai.com/v1/chat/completions"
+    val aiModel = environment.config.propertyOrNull("ai.model")?.getString() ?: "gpt-4o-mini"
 
     /* ---------------- ROUTES ---------------- */
     routing {
@@ -107,7 +109,7 @@ fun Application.module() {
 
         authRoutes()
         wordRoutes()
-        attemptRoutes(openAiApiKey)
+        attemptRoutes(aiApiKey, aiBaseUrl, aiModel)
         dashboardRoutes()
     }
 }

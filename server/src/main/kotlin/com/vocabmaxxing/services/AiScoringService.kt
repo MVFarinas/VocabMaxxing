@@ -68,10 +68,12 @@ You MUST respond with ONLY a JSON object, no markdown, no backticks, no extra te
         targetWord: String,
         definition: String,
         userSentence: String,
-        apiKey: String
+        apiKey: String,
+        baseUrl: String = "https://api.openai.com/v1/chat/completions",
+        model: String = "gpt-4o-mini"
     ): SemanticResult? {
         if (apiKey.isBlank()) {
-            println("OPENAI_API_KEY not configured, skipping semantic evaluation.")
+            println("AI_API_KEY not configured, skipping semantic evaluation.")
             return null
         }
 
@@ -86,12 +88,12 @@ Return STRICT JSON only.
         """.trimIndent()
 
         return try {
-            val response = client.post("https://api.openai.com/v1/chat/completions") {
+            val response = client.post(baseUrl) {
                 contentType(ContentType.Application.Json)
                 header("Authorization", "Bearer $apiKey")
                 setBody(
                     mapOf(
-                        "model" to "gpt-4o-mini",
+                        "model" to model,
                         "messages" to listOf(
                             mapOf("role" to "system", "content" to SYSTEM_PROMPT),
                             mapOf("role" to "user", "content" to userPrompt)

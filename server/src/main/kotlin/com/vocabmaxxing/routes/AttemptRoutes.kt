@@ -21,7 +21,7 @@ import java.time.LocalTime
 import java.util.UUID
 import kotlin.math.roundToInt
 
-fun Route.attemptRoutes(openAiApiKey: String) {
+fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
 
     authenticate("auth-jwt") {
 
@@ -64,7 +64,7 @@ fun Route.attemptRoutes(openAiApiKey: String) {
 
             // Step 2: AI semantic evaluation
             val semanticResult = AiScoringService.evaluate(
-                targetWord, definition, request.sentence, openAiApiKey
+                targetWord, definition, request.sentence, aiApiKey, aiBaseUrl, aiModel
             )
             val aiAvailable = semanticResult != null
             val semanticScore = semanticResult?.semantic_score ?: 0
