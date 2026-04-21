@@ -1,6 +1,7 @@
 package com.vocabmaxxing.services
 
 import io.ktor.client.*
+import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -8,11 +9,11 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlin.math.max
 import kotlin.math.min
 
-private fun extractJsonObject(text: String): String? {
+internal fun extractJsonObject(text: String): String? {
     val start = text.indexOf('{')
     if (start == -1) return null
     var depth = 0
@@ -43,6 +44,21 @@ object AiScoringService {
         install(ContentNegotiation) {
             json(json)
         }
+    }
+
+    internal suspend fun evaluateWithEngine(
+        engine: HttpClientEngine,
+        targetWord: String,
+        definition: String,
+        userSentence: String,
+        apiKey: String,
+        baseUrl: String = "https://api.groq.com/openai/v1/chat/completions",
+        model: String = "llama-3.3-70b-versatile"
+    ): SemanticResult? {
+        val testClient = HttpClient(engine) {
+            install(ContentNegotiation) { json(json) }
+        }
+        return evaluateInternal(testClient, targetWord, definition, userSentence, apiKey, baseUrl, model)
     }
 
     private val SYSTEM_PROMPT = """
@@ -84,6 +100,16 @@ You MUST respond with ONLY a JSON object, no markdown, no backticks, no extra te
         apiKey: String,
         baseUrl: String = "https://api.openai.com/v1/chat/completions",
         model: String = "gpt-4o-mini"
+    ): SemanticResult? = evaluateInternal(client, targetWord, definition, userSentence, apiKey, baseUrl, model)
+
+    private suspend fun evaluateInternal(
+        httpClient: HttpClient,
+        targetWord: String,
+        definition: String,
+        userSentence: String,
+        apiKey: String,
+        baseUrl: String,
+        model: String
     ): SemanticResult? {
         if (apiKey.isBlank()) {
             println("AI_API_KEY not configured, skipping semantic evaluation.")
@@ -101,21 +127,27 @@ Return STRICT JSON only.
         """.trimIndent()
 
         return try {
-            val response = client.post(baseUrl) {
+            val response = httpClient.post(baseUrl) {
                 contentType(ContentType.Application.Json)
                 header("Authorization", "Bearer $apiKey")
-                setBody(
-                    mapOf(
-                        "model" to model,
-                        "messages" to listOf(
-                            mapOf("role" to "system", "content" to SYSTEM_PROMPT),
-                            mapOf("role" to "user", "content" to userPrompt)
-                        ),
-                        "temperature" to 0.3,
-                        "max_tokens" to 300,
-                        "response_format" to mapOf("type" to "json_object")
-                    )
-                )
+                setBody(buildJsonObject {
+                    put("model", model)
+                    putJsonArray("messages") {
+                        addJsonObject {
+                            put("role", "system")
+                            put("content", SYSTEM_PROMPT)
+                        }
+                        addJsonObject {
+                            put("role", "user")
+                            put("content", userPrompt)
+                        }
+                    }
+                    put("temperature", 0.3)
+                    put("max_tokens", 300)
+                    putJsonObject("response_format") {
+                        put("type", "json_object")
+                    }
+                })
             }
 
             val body = response.bodyAsText()
@@ -137,11 +169,9 @@ Return STRICT JSON only.
 
             val result = json.decodeFromString<SemanticResult>(jsonText)
 
-            // Clamp sub-scores to valid ranges
             val contextScore = max(0, min(15, result.context_score))
             val grammarScore = max(0, min(10, result.grammar_score))
             val complexityScore = max(0, min(15, result.complexity_score))
-            // semantic_score must equal the sum of sub-scores
             val semanticScore = contextScore + grammarScore + complexityScore
             result.copy(
                 semantic_score = semanticScore,
