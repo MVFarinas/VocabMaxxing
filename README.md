@@ -2,23 +2,20 @@
 - Initiated during HackED2026... continued April 2026
 
 ## To Do:
-- Spitball Ideas -> which streams to go into
-  - Create User Stories
+- Create User Stories
 - Refine features desired for MVP
 - Assign roles and tasks
-- Define priority of features to be built
 
 - Wireframe + Build Front End
 - Backend 
 - Test Cases
 
-- Present features
-  - Present competition + pain points
-  - How our product solves this friction
-  - Consider Business Model
+- Consider Business Model
+- Consider Scalability to Educational Institutions (consumer facing vs institution facing)
 
 ## Decisions:
-- VocabMaxxing Application on Android Studio
-  - Kotlin + Kotr
+- PostGreSql
+- Android Studio
+- Kotlin
  
 - User Stories:
