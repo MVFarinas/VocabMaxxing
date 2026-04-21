@@ -12,6 +12,19 @@ import kotlinx.serialization.json.Json
 import kotlin.math.max
 import kotlin.math.min
 
+private fun extractJsonObject(text: String): String? {
+    val start = text.indexOf('{')
+    if (start == -1) return null
+    var depth = 0
+    for (i in start until text.length) {
+        when (text[i]) {
+            '{' -> depth++
+            '}' -> { depth--; if (depth == 0) return text.substring(start, i + 1) }
+        }
+    }
+    return null
+}
+
 @Serializable
 data class SemanticResult(
     val semantic_score: Int,
@@ -99,20 +112,30 @@ Return STRICT JSON only.
                             mapOf("role" to "user", "content" to userPrompt)
                         ),
                         "temperature" to 0.3,
-                        "max_tokens" to 300
+                        "max_tokens" to 300,
+                        "response_format" to mapOf("type" to "json_object")
                     )
                 )
             }
 
             val body = response.bodyAsText()
-            // Parse the OpenAI response to extract the content
+
+            if (!response.status.isSuccess()) {
+                println("AI evaluation HTTP error: ${response.status} — body: $body")
+                return null
+            }
+
             val openAiResponse = json.decodeFromString<OpenAiChatResponse>(body)
             val content = openAiResponse.choices.firstOrNull()?.message?.content?.trim()
                 ?: return null
 
-            // Strip markdown fences if present
-            val cleaned = content.replace(Regex("```json\\n?|\\n?```"), "").trim()
-            val result = json.decodeFromString<SemanticResult>(cleaned)
+            val jsonText = extractJsonObject(content)
+                ?: run {
+                    println("AI evaluation: could not extract JSON from content: $content")
+                    return null
+                }
+
+            val result = json.decodeFromString<SemanticResult>(jsonText)
 
             // Clamp sub-scores to valid ranges
             val contextScore = max(0, min(15, result.context_score))
@@ -127,7 +150,7 @@ Return STRICT JSON only.
                 complexity_score = complexityScore
             )
         } catch (e: Exception) {
-            println("AI evaluation failed: ${e.message}")
+            println("AI evaluation failed (${e::class.simpleName}): ${e.message}")
             null
         }
     }
