@@ -31,6 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.sp
 import com.vocabmaxxing.app.R
 import com.vocabmaxxing.app.ui.theme.*
@@ -41,12 +42,16 @@ private val CurvedTopShape: Shape = object : Shape {
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
+        val dipY = with(density) { 40.dp.toPx() }
+        val plateauY = with(density) { 4.dp.toPx() }
         val path = Path().apply {
-            moveTo(0f, size.height * 0.10f)
-            quadraticBezierTo(
-                size.width / 2f, -size.height * 0.10f,
-                size.width, size.height * 0.10f
+            moveTo(0f, dipY)
+            cubicTo(
+                size.width * 0.05f, plateauY,
+                size.width * 0.35f, plateauY,
+                size.width * 0.60f, plateauY
             )
+            lineTo(size.width, plateauY)
             lineTo(size.width, size.height)
             lineTo(0f, size.height)
             close()
@@ -77,6 +82,7 @@ fun AuthScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .zIndex(2f)
                     .background(SignInHeaderBg)
                     .padding(start = 16.dp, end = 24.dp, top = 16.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -85,12 +91,14 @@ fun AuthScreen(
                     painter = painterResource(id = R.drawable.statue_head),
                     contentDescription = null,
                     modifier = Modifier
-                        .height(130.dp)
-                        .width(100.dp),
+                        .height(210.dp)
+                        .width(150.dp)
+                        .offset(y = 60.dp)
+                        .zIndex(2f),
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.width(12.dp))
-                BrandText(modifier = Modifier.weight(1f))
+                BrandText(modifier = Modifier.weight(1f).offset(y = 25.dp))
             }
 
             // Thin olive divider line
@@ -109,14 +117,16 @@ fun AuthScreen(
                     .clip(CurvedTopShape)
                     .background(SignInBodyBg)
             ) {
-                // Dome + laurels background image at the bottom
+                // Dome + laurels decorative image, centered at the bottom
                 Image(
                     painter = painterResource(id = R.drawable.dome_laurels),
                     contentDescription = null,
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 8.dp)
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter),
-                    contentScale = ContentScale.FillWidth
+                        .height(280.dp),
+                    contentScale = ContentScale.Fit
                 )
 
                 Column(
@@ -124,7 +134,7 @@ fun AuthScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 24.dp)
-                        .padding(top = 56.dp, bottom = 24.dp),
+                        .padding(top = 32.dp, bottom = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -178,8 +188,8 @@ fun AuthScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SignInOlive,
                             contentColor = SignInTextOnOlive,
-                            disabledContainerColor = SignInOliveDim.copy(alpha = 0.6f),
-                            disabledContentColor = SignInTextOnOlive.copy(alpha = 0.6f)
+                            disabledContainerColor = SignInOlive,
+                            disabledContentColor = SignInTextOnOlive
                         ),
                         shape = RoundedCornerShape(14.dp)
                     ) {
@@ -197,7 +207,7 @@ fun AuthScreen(
                     Text(
                         text = "Forgot your password?",
                         fontSize = 14.sp,
-                        color = SignInMutedOnDark,
+                        color = SignInLinkBlue,
                         textAlign = TextAlign.Center
                     )
 
@@ -241,13 +251,13 @@ fun AuthScreen(
 @Composable
 private fun BrandText(modifier: Modifier = Modifier) {
     val big = SpanStyle(
-        fontSize = 30.sp,
+        fontSize = 34.sp,
         fontFamily = FontFamily.Serif,
         fontWeight = FontWeight.Bold,
         color = Color(0xFF1A1410)
     )
     val small = SpanStyle(
-        fontSize = 22.sp,
+        fontSize = 20.sp,
         fontFamily = FontFamily.Serif,
         fontWeight = FontWeight.Bold,
         color = Color(0xFF1A1410)
@@ -264,7 +274,9 @@ private fun BrandText(modifier: Modifier = Modifier) {
         text = annotated,
         modifier = modifier,
         textAlign = TextAlign.Start,
-        letterSpacing = 1.sp
+        letterSpacing = 1.sp,
+        maxLines = 1,
+        softWrap = false
     )
 }
 
