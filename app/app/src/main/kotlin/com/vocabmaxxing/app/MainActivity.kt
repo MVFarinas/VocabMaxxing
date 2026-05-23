@@ -41,10 +41,10 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val authState by authViewModel.uiState.collectAsState()
+                val startDest = remember { if (authViewModel.uiState.value.isAuthenticated) "daily" else "auth" }
 
-                // Navigate on auth state changes
                 LaunchedEffect(authState.isAuthenticated) {
-                    if (authState.isAuthenticated) {
+                    if (authState.isAuthenticated && startDest == "auth") {
                         navController.navigate("daily") {
                             popUpTo("auth") { inclusive = true }
                         }
@@ -53,8 +53,8 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = if (authState.isAuthenticated) "daily" else "auth"
-                ) {
+                    startDestination = startDest)
+                {
                     composable("auth") {
                         AuthScreen(
                             onLogin = { email, pw -> authViewModel.login(email, pw) },
