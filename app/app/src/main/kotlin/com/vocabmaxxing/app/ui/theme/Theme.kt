@@ -35,7 +35,7 @@ val SignInFieldBorder = Color(0xFFDDE3B4)
 val SignInTextOnDark = Color(0xFFFFFFFF)
 val SignInMutedOnDark = Color(0xFFB8AFA6)
 val SignInTextOnOlive = Color(0xFF1A1410)
-val SignInLinkBlue = Color(0xFF8FA8B5)
+val SignInLinkBlue = Color(0xFF9CB8C4)
 
 private val DarkColorScheme = darkColorScheme(
     primary = Accent,
