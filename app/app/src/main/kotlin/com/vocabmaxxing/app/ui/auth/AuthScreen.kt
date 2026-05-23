@@ -1,5 +1,6 @@
 package com.vocabmaxxing.app.ui.auth
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,17 +18,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -71,6 +73,8 @@ fun AuthScreen(
     var isLoginMode by remember { mutableStateOf(true) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var bodyTopPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
 
     Box(
         modifier = modifier
@@ -84,7 +88,7 @@ fun AuthScreen(
                     .fillMaxWidth()
                     .zIndex(2f)
                     .background(SignInHeaderBg)
-                    .padding(start = 16.dp, end = 24.dp, top = 16.dp, bottom = 8.dp),
+                    .padding(start = 0.dp, end = 24.dp, top = 16.dp, bottom = 0.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -93,30 +97,39 @@ fun AuthScreen(
                     modifier = Modifier
                         .height(210.dp)
                         .width(150.dp)
-                        .offset(y = 60.dp)
+                        .offset(x = (-14).dp, y = 57.dp)
                         .zIndex(2f),
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.width(12.dp))
-                BrandText(modifier = Modifier.weight(1f).offset(y = 25.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.vocabmaxxing_wordmark),
+                    contentDescription = "vocabMAXXING",
+                    modifier = Modifier
+                        .weight(1f)
+                        .offset(y = 25.dp)
+                        .offset(x = (-20).dp, y = 10.dp)
+                        .height(36.dp),
+                    contentScale = ContentScale.Fit
+                )
             }
-
-            // Thin olive divider line
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .background(SignInDividerOlive)
-            )
 
             // ---- Dark brown body with curved top ----
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .clip(CurvedTopShape)
-                    .background(SignInBodyBg)
+                    .onGloballyPositioned { coords ->
+                        bodyTopPx = coords.positionInRoot().y.toInt()
+                    }
             ) {
+                // Brown body
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CurvedTopShape)
+                        .background(SignInBodyBg)
+                ) {
                 // Dome + laurels decorative image, centered at the bottom
                 Image(
                     painter = painterResource(id = R.drawable.dome_laurels),
@@ -124,8 +137,8 @@ fun AuthScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 8.dp)
-                        .fillMaxWidth()
-                        .height(280.dp),
+                        .fillMaxWidth(244f / 412f)
+                        .aspectRatio(244f / 138.41f),
                     contentScale = ContentScale.Fit
                 )
 
@@ -243,41 +256,42 @@ fun AuthScreen(
 
                     Spacer(Modifier.height(120.dp))
                 }
+                }
+            }
+        }
+
+        // Olive stroke that traces the curve, drawn above everything (including the statue)
+        if (bodyTopPx > 0) {
+            val strokeWidthDp = 14.dp
+            val strokeWidthPx = with(density) { strokeWidthDp.toPx() }
+            val canvasHeightDp = 60.dp
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(canvasHeightDp)
+                    .offset { IntOffset(0, bodyTopPx - (strokeWidthPx / 2f).toInt()) }
+                    .zIndex(10f)
+            ) {
+                val w = size.width
+                val dipY = with(density) { 40.dp.toPx() } + strokeWidthPx / 2f
+                val plateauY = with(density) { 4.dp.toPx() } + strokeWidthPx / 2f
+                val curvePath = Path().apply {
+                    moveTo(0f, dipY)
+                    cubicTo(
+                        w * 0.05f, plateauY,
+                        w * 0.35f, plateauY,
+                        w * 0.60f, plateauY
+                    )
+                    lineTo(w, plateauY)
+                }
+                drawPath(
+                    path = curvePath,
+                    color = SignInDividerOlive,
+                    style = Stroke(width = strokeWidthPx)
+                )
             }
         }
     }
-}
-
-@Composable
-private fun BrandText(modifier: Modifier = Modifier) {
-    val big = SpanStyle(
-        fontSize = 34.sp,
-        fontFamily = FontFamily.Serif,
-        fontWeight = FontWeight.Bold,
-        color = Color(0xFF1A1410)
-    )
-    val small = SpanStyle(
-        fontSize = 20.sp,
-        fontFamily = FontFamily.Serif,
-        fontWeight = FontWeight.Bold,
-        color = Color(0xFF1A1410)
-    )
-    val annotated = buildAnnotatedString {
-        withStyle(big) { append("V") }
-        withStyle(small) { append("OCAB") }
-        withStyle(big) { append("M") }
-        withStyle(small) { append("A") }
-        withStyle(big) { append("XX") }
-        withStyle(small) { append("ING") }
-    }
-    Text(
-        text = annotated,
-        modifier = modifier,
-        textAlign = TextAlign.Start,
-        letterSpacing = 1.sp,
-        maxLines = 1,
-        softWrap = false
-    )
 }
 
 @Composable
