@@ -65,7 +65,7 @@ fun AuthScreen(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 9.dp)
                     .fillMaxWidth(244f / 412f)
                     .aspectRatio(244f / 138.41f),
                 contentScale = ContentScale.Fit
@@ -88,6 +88,7 @@ fun AuthScreen(
                 ) {
                     Text(
                         text = if (isLoginMode) "Welcome Back" else "Create Account",
+                        fontFamily = Inter,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Medium,
                         color = SignInTextOnDark,
@@ -117,6 +118,7 @@ fun AuthScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text = error,
+                            fontFamily = Inter,
                             fontSize = 13.sp,
                             color = ScoreLow.copy(alpha = 0.95f),
                             textAlign = TextAlign.Center
@@ -146,8 +148,9 @@ fun AuthScreen(
                             text = if (isLoading) "Processing..."
                                    else if (isLoginMode) "Sign in"
                                    else "Sign up",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontFamily = Inter,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
 
@@ -155,7 +158,9 @@ fun AuthScreen(
 
                     Text(
                         text = "Forgot your password?",
-                        fontSize = 14.sp,
+                        fontFamily = Inter,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
                         color = SignInLinkBlue,
                         textAlign = TextAlign.Center
                     )
@@ -174,7 +179,9 @@ fun AuthScreen(
                         Text(
                             text = if (isLoginMode) "Don’t have an account?"
                                    else "Already have an account?",
-                            fontSize = 14.sp,
+                            fontFamily = Inter,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
                             color = SignInTextOnDark
                         )
                         Button(
@@ -191,6 +198,7 @@ fun AuthScreen(
                         ) {
                             Text(
                                 text = if (isLoginMode) "Sign up" else "Sign in",
+                                fontFamily = Inter,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -252,23 +260,25 @@ private fun PillTextField(
             Text(
                 text = label,
                 color = SignInMutedOnDark,
-                fontSize = 14.sp
+                fontFamily = Inter,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal
             )
         },
-        textStyle = TextStyle(color = SignInTextOnDark, fontSize = 16.sp),
+        textStyle = TextStyle(color = SignInTextOnDark, fontFamily = Inter, fontSize = 16.sp),
         singleLine = true,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = SignInFieldBorder,
-            unfocusedBorderColor = SignInFieldBorder.copy(alpha = 0.7f),
+            unfocusedBorderColor = SignInFieldBorder,
             focusedTextColor = SignInTextOnDark,
             unfocusedTextColor = SignInTextOnDark,
             focusedLabelColor = SignInMutedOnDark,
             unfocusedLabelColor = SignInMutedOnDark,
             cursorColor = SignInOlive,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent
+            focusedContainerColor = SignInFieldFill,
+            unfocusedContainerColor = SignInFieldFill
         ),
         shape = RoundedCornerShape(20.dp)
     )
