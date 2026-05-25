@@ -1,24 +1,31 @@
 package com.vocabmaxxing.app.ui.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.sp
+import com.vocabmaxxing.app.R
 import com.vocabmaxxing.app.ui.theme.*
+
+private val HEADER_HEIGHT = 222.dp
 
 @Composable
 fun AuthScreen(
@@ -32,171 +39,247 @@ fun AuthScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Surface950)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(SignInHeaderBg)
     ) {
-        // Brand
-        Row {
-            Text(
-                text = "Vocab",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+        // ---- Brown body — fills from below HEADER_HEIGHT down to the bottom ----
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = HEADER_HEIGHT)
+                .zIndex(3f)
+        ) {
+            // Curve + brown background as a single exported PNG (transparent above the curve)
+            Image(
+                painter = painterResource(id = R.drawable.brown_curve_bg),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
             )
-            Text(
-                text = "Maxxing",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Accent
+
+            // Dome + laurels at the bottom
+            Image(
+                painter = painterResource(id = R.drawable.dome_laurels),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 9.dp)
+                    .fillMaxWidth(244f / 412f)
+                    .aspectRatio(244f / 138.41f),
+                contentScale = ContentScale.Fit
             )
+
+            // Form column with SpaceBetween (top group anchored top, sign-up row anchored bottom)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 17.dp)
+                    .padding(top = 48.dp, bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // ---- Top group ----
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if (isLoginMode) "Welcome Back" else "Create Account",
+                        fontFamily = Inter,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = SignInTextOnDark,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(28.dp))
+
+                    PillTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = "Email Address",
+                        keyboardType = KeyboardType.Email
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    PillTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Password",
+                        keyboardType = KeyboardType.Password,
+                        isPassword = true
+                    )
+
+                    if (error != null) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            text = error,
+                            fontFamily = Inter,
+                            fontSize = 13.sp,
+                            color = ScoreLow.copy(alpha = 0.95f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    Button(
+                        onClick = {
+                            if (isLoginMode) onLogin(email, password)
+                            else onRegister(email, password)
+                        },
+                        enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(67.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = SignInOlive,
+                            contentColor = SignInTextOnOlive,
+                            disabledContainerColor = SignInOlive,
+                            disabledContentColor = SignInTextOnOlive
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = if (isLoading) "Processing..."
+                                   else if (isLoginMode) "Sign in"
+                                   else "Sign up",
+                            fontFamily = Inter,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        text = "Forgot your password?",
+                        fontFamily = Inter,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = SignInLinkBlue,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                // ---- Bottom group: Sign up row + dome clearance ----
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (isLoginMode) "Don’t have an account?"
+                                   else "Already have an account?",
+                            fontFamily = Inter,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = SignInTextOnDark
+                        )
+                        Button(
+                            onClick = { isLoginMode = !isLoginMode },
+                            modifier = Modifier
+                                .width(137.dp)
+                                .height(52.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = SignInOlive,
+                                contentColor = SignInTextOnOlive
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = if (isLoginMode) "Sign up" else "Sign in",
+                                fontFamily = Inter,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(160.dp))
+                }
+            }
         }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Measure and improve your expressive intelligence.",
-            fontSize = 13.sp,
-            color = TextMuted,
-            textAlign = TextAlign.Center
-        )
 
-        Spacer(Modifier.height(40.dp))
-
-        // Card
-        Column(
+        // ---- Header overlay (statue + wordmark) ----
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Surface900)
-                .padding(24.dp)
+                .zIndex(2f)
+                .padding(start = 0.dp, end = 8.dp, top = 0.dp, bottom = 0.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Tab toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Sign In",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isLoginMode) Color.White else TextMuted,
-                    modifier = Modifier.clickable { isLoginMode = true }
-                )
-                Text(
-                    text = "Register",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (!isLoginMode) Color.White else TextMuted,
-                    modifier = Modifier.clickable { isLoginMode = false }
-                )
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // Email
-            Text(
-                text = "EMAIL",
-                fontSize = 9.sp,
-                fontFamily = FontFamily.Monospace,
-                color = TextMuted,
-                letterSpacing = 2.sp
-            )
-            Spacer(Modifier.height(6.dp))
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("you@example.com", color = TextMuted.copy(alpha = 0.5f)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent.copy(alpha = 0.5f),
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = Accent
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Password
-            Text(
-                text = "PASSWORD",
-                fontSize = 9.sp,
-                fontFamily = FontFamily.Monospace,
-                color = TextMuted,
-                letterSpacing = 2.sp
-            )
-            Spacer(Modifier.height(6.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = {
-                    if (!isLoginMode) Text("Min. 8 characters", color = TextMuted.copy(alpha = 0.5f))
-                },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent.copy(alpha = 0.5f),
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = Accent
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            // Error
-            if (error != null) {
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = error,
-                    fontSize = 13.sp,
-                    color = ScoreLow.copy(alpha = 0.9f)
-                )
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            // Submit button
-            Button(
-                onClick = {
-                    if (isLoginMode) onLogin(email, password)
-                    else onRegister(email, password)
-                },
-                enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
+            Image(
+                painter = painterResource(id = R.drawable.statue_head),
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Accent,
-                    contentColor = Surface950
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = if (isLoading) "Processing..."
-                           else if (isLoginMode) "Sign In"
-                           else "Create Account",
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+                    .height(257.dp)
+                    .width(182.dp)
+                    .offset(x = (-31).dp, y = 55.dp)
+                    .zIndex(2f),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(Modifier.width(12.dp))
+            Image(
+                painter = painterResource(id = R.drawable.vocabmaxxing_wordmark),
+                contentDescription = "vocabMAXXING",
+                modifier = Modifier
+                    .weight(1f)
+                    .offset(x = (-37).dp, y = 24.dp)
+                    .height(35.dp),
+                contentScale = ContentScale.Fit
+            )
         }
-
-        Spacer(Modifier.height(24.dp))
-        Text(
-            text = "Performance-focused vocabulary training.\nNo games. No gimmicks.",
-            fontSize = 11.sp,
-            color = TextMuted.copy(alpha = 0.5f),
-            textAlign = TextAlign.Center,
-            lineHeight = 16.sp
-        )
     }
+}
+
+@Composable
+private fun PillTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isPassword: Boolean = false
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(67.dp),
+        label = {
+            Text(
+                text = label,
+                color = SignInMutedOnDark,
+                fontFamily = Inter,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal
+            )
+        },
+        textStyle = TextStyle(color = SignInTextOnDark, fontFamily = Inter, fontSize = 16.sp),
+        singleLine = true,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = SignInFieldBorder,
+            unfocusedBorderColor = SignInFieldBorder,
+            focusedTextColor = SignInTextOnDark,
+            unfocusedTextColor = SignInTextOnDark,
+            focusedLabelColor = SignInMutedOnDark,
+            unfocusedLabelColor = SignInMutedOnDark,
+            cursorColor = SignInOlive,
+            focusedContainerColor = SignInFieldFill,
+            unfocusedContainerColor = SignInFieldFill
+        ),
+        shape = RoundedCornerShape(20.dp)
+    )
 }
