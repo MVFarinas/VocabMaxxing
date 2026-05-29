@@ -7,10 +7,9 @@ import kotlin.math.roundToInt
 data class AlgorithmicResult(
     val wordPresent: Boolean,
     val sentenceLength: Int,
-    val structuralComplexity: Int,
-    val vocabularyDiversity: Int,
-    val grammar: Int,
-    val algorithmicTotal: Int
+    val complexity: Int,         // 0-20 — algorithmic half of Complexity
+    val vocabularyDiversity: Int, // 0-20
+    val grammar: Int              // 0-20 — algorithmic half of Grammar
 )
 
 object ScoringEngine {
@@ -198,10 +197,9 @@ object ScoringEngine {
             return AlgorithmicResult(
                 wordPresent = false,
                 sentenceLength = 0,
-                structuralComplexity = 0,
+                complexity = 0,
                 vocabularyDiversity = 0,
-                grammar = 0,
-                algorithmicTotal = 0
+                grammar = 0
             )
         }
 
@@ -211,15 +209,14 @@ object ScoringEngine {
         val grammar = scoreGrammar(sentence)
 
         val lengthFactor = sentenceLength / 20.0
-        val adjustedStructural = (structural * (0.5 + lengthFactor * 0.5)).roundToInt()
+        val adjustedComplexity = (structural * (0.5 + lengthFactor * 0.5)).roundToInt()
 
         return AlgorithmicResult(
             wordPresent = true,
             sentenceLength = sentenceLength,
-            structuralComplexity = adjustedStructural,
+            complexity = adjustedComplexity,
             vocabularyDiversity = vocab,
-            grammar = grammar,
-            algorithmicTotal = adjustedStructural + vocab + grammar
+            grammar = grammar
         )
     }
 }

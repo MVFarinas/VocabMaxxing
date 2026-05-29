@@ -32,11 +32,11 @@ object Attempts : Table("attempts") {
     val userId = varchar("user_id", 36).references(Users.id)
     val wordId = varchar("word_id", 36).references(Words.id)
     val sentence = text("sentence")
-    val semanticScore = integer("semantic_score").default(0)
-    val structuralScore = integer("structural_score").default(0)
-    val vocabScore = integer("vocab_score").default(0)
-    val grammarScore = integer("grammar_score").default(0)
-    val totalScore = integer("total_score").default(0)
+    val contextScore = integer("context_score").default(0)        // 0-15
+    val grammarScore = integer("grammar_score").default(0)        // 0-30
+    val complexityScore = integer("complexity_score").default(0)  // 0-35
+    val vocabScore = integer("vocab_score").default(0)            // 0-20
+    val totalScore = integer("total_score").default(0)            // 0-100
     val feedbackText = text("feedback_text").nullable()
     val createdAt = datetime("created_at").default(LocalDateTime.now())
 

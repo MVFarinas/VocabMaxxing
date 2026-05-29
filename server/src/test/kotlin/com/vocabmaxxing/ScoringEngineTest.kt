@@ -79,7 +79,7 @@ class ScoringEngineTest {
     fun `evaluate returns zero when word absent`() {
         val result = ScoringEngine.evaluate("The cat sat on the mat.", "ubiquitous")
         assertFalse(result.wordPresent)
-        assertEquals(0, result.algorithmicTotal)
+        assertEquals(0, result.grammar + result.complexity + result.vocabularyDiversity)
     }
 
     @Test
@@ -89,8 +89,9 @@ class ScoringEngineTest {
             "ubiquitous"
         )
         assertTrue(result.wordPresent)
-        assertTrue(result.algorithmicTotal > 0)
-        assertTrue(result.algorithmicTotal <= 60)
+        val algoTotal = result.grammar + result.complexity + result.vocabularyDiversity
+        assertTrue(algoTotal > 0)
+        assertTrue(algoTotal <= 60)
     }
 
     @Test

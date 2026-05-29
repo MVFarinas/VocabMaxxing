@@ -94,13 +94,13 @@ fun DashboardScreen(
                         .background(Surface900)
                         .padding(16.dp)
                 ) {
-                    Text("SEMANTIC ACCURACY AVG", fontSize = 9.sp,
+                    Text("CONTEXT AVG", fontSize = 9.sp,
                         fontFamily = FontFamily.Monospace, color = TextMuted, letterSpacing = 1.sp)
                     Spacer(Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("${data.semanticAvg}", fontSize = 22.sp,
+                        Text("${data.contextAvg}", fontSize = 22.sp,
                             fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("/40", fontSize = 12.sp, color = TextMuted)
+                        Text("/15", fontSize = 12.sp, color = TextMuted)
                     }
                 }
                 Column(
@@ -109,13 +109,13 @@ fun DashboardScreen(
                         .background(Surface900)
                         .padding(16.dp)
                 ) {
-                    Text("STRUCTURAL COMPLEXITY AVG", fontSize = 9.sp,
+                    Text("COMPLEXITY AVG", fontSize = 9.sp,
                         fontFamily = FontFamily.Monospace, color = TextMuted, letterSpacing = 1.sp)
                     Spacer(Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("${data.structuralAvg}", fontSize = 22.sp,
+                        Text("${data.complexityAvg}", fontSize = 22.sp,
                             fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("/20", fontSize = 12.sp, color = TextMuted)
+                        Text("/35", fontSize = 12.sp, color = TextMuted)
                     }
                 }
             }
