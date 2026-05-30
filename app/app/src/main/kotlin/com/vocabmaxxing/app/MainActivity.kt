@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
                                 dailyViewModel.submitSentence(wordId, sentence)
                             },
                             onReset = { dailyViewModel.reset() },
+                            onRetry = { dailyViewModel.loadDailyWords() },
                             onNavigateDashboard = {
                                 navController.navigate("dashboard")
                             },

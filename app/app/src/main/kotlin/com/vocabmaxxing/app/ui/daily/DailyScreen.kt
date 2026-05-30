@@ -32,6 +32,7 @@ fun DailyScreen(
     result: EvaluationResponse?,
     onSubmit: (wordId: String, sentence: String) -> Unit,
     onReset: () -> Unit,
+    onRetry: () -> Unit,
     onNavigateDashboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -205,7 +206,31 @@ fun DailyScreen(
             }
 
             if (words.isEmpty()) {
-                Text("No words available.", fontSize = 13.sp, color = TextMuted)
+                if (error != null) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Surface900)
+                            .padding(16.dp)
+                    ) {
+                        Text("FAILED TO LOAD", fontSize = 9.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = ScoreLow, letterSpacing = 1.5.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(error, fontSize = 13.sp,
+                            color = ScoreLow.copy(alpha = 0.9f),
+                            lineHeight = 20.sp)
+                        Spacer(Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = onRetry,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = TextSecondary)
+                        ) { Text("Retry", fontSize = 13.sp) }
+                    }
+                } else {
+                    Text("No words available.", fontSize = 13.sp, color = TextMuted)
+                }
             }
 
             // ─── Sentence Input ──────────────────────────────────
