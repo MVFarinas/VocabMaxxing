@@ -68,7 +68,7 @@ private val DarkColorScheme = darkColorScheme(
 fun VocabMaxxingTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = DarkColorScheme,
-        typography = Typography(),
+        typography = Typography,
         content = content
     )
 }
