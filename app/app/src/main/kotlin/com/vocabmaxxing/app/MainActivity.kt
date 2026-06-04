@@ -41,19 +41,27 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val authState by authViewModel.uiState.collectAsState()
-                val startDest = remember { if (authViewModel.uiState.value.isAuthenticated) "daily" else "auth" }
 
+                // Always start at "auth". AuthViewModel verifies the cached
+                // session asynchronously; if valid, the LaunchedEffect below
+                // forwards to "daily". This avoids landing on an authed screen
+                // with a stale token that can't make API calls.
                 LaunchedEffect(authState.isAuthenticated) {
-                    if (authState.isAuthenticated && startDest == "auth") {
+                    val current = navController.currentBackStackEntry?.destination?.route
+                    if (authState.isAuthenticated && current == "auth") {
                         navController.navigate("daily") {
                             popUpTo("auth") { inclusive = true }
+                        }
+                    } else if (!authState.isAuthenticated && current != null && current != "auth") {
+                        navController.navigate("auth") {
+                            popUpTo(0) { inclusive = true }
                         }
                     }
                 }
 
                 NavHost(
                     navController = navController,
-                    startDestination = startDest)
+                    startDestination = "auth")
                 {
                     composable("auth") {
                         AuthScreen(
@@ -86,6 +94,7 @@ class MainActivity : ComponentActivity() {
                                 dailyViewModel.submitSentence(wordId, sentence)
                             },
                             onReset = { dailyViewModel.reset() },
+                            onRetry = { dailyViewModel.loadDailyWords() },
                             onNavigateDashboard = {
                                 navController.navigate("dashboard")
                             },

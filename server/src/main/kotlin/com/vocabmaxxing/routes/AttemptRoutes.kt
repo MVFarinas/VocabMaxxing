@@ -67,8 +67,13 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
                 targetWord, definition, request.sentence, aiApiKey, aiBaseUrl, aiModel
             )
             val aiAvailable = semanticResult != null
-            val semanticScore = semanticResult?.semantic_score ?: 0
-            val totalScore = algo.algorithmicTotal + semanticScore
+
+            // Merged categories: AI half + algorithmic half
+            val contextScore = semanticResult?.context_score ?: 0                       // 0-15
+            val grammarScore = (semanticResult?.grammar_score ?: 0) + algo.grammar      // 0-30
+            val complexityScore = (semanticResult?.complexity_score ?: 0) + algo.complexity // 0-35
+            val vocabScore = algo.vocabularyDiversity                                   // 0-20
+            val totalScore = contextScore + grammarScore + complexityScore + vocabScore
 
             val feedbackText = if (semanticResult != null) {
                 "${semanticResult.idiomatic_feedback}\n\n${semanticResult.improvement_suggestion}"
@@ -84,10 +89,10 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
                     it[Attempts.userId] = userId
                     it[wordId] = request.wordId
                     it[sentence] = request.sentence
-                    it[Attempts.semanticScore] = semanticScore
-                    it[structuralScore] = algo.structuralComplexity
-                    it[vocabScore] = algo.vocabularyDiversity
-                    it[grammarScore] = algo.grammar
+                    it[Attempts.contextScore] = contextScore
+                    it[Attempts.grammarScore] = grammarScore
+                    it[Attempts.complexityScore] = complexityScore
+                    it[Attempts.vocabScore] = vocabScore
                     it[Attempts.totalScore] = totalScore
                     it[Attempts.feedbackText] = feedbackText
                     it[createdAt] = LocalDateTime.now()
@@ -141,19 +146,16 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
             val response = EvaluationResponse(
                 attemptId = attemptId,
                 scores = ScoreBreakdown(
-                    semanticScore = semanticScore,
-                    structuralScore = algo.structuralComplexity,
-                    vocabScore = algo.vocabularyDiversity,
-                    grammarScore = algo.grammar,
+                    contextScore = contextScore,
+                    grammarScore = grammarScore,
+                    complexityScore = complexityScore,
+                    vocabScore = vocabScore,
                     totalScore = totalScore
                 ),
                 feedback = semanticResult?.let {
                     AiFeedback(
                         idiomaticFeedback = it.idiomatic_feedback,
-                        improvementSuggestion = it.improvement_suggestion,
-                        contextScore = it.context_score,
-                        grammarScore = it.grammar_score,
-                        complexityScore = it.complexity_score
+                        improvementSuggestion = it.improvement_suggestion
                     )
                 },
                 feedbackText = feedbackText,
