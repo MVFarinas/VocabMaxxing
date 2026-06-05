@@ -104,15 +104,13 @@ fun WordCard(
         else -> TextMuted
     }
 
-    val borderColor = if (selected) Accent.copy(alpha = 0.5f) else tierColor.copy(alpha = 0.2f)
-    val bgColor = if (selected) Accent.copy(alpha = 0.05f) else tierColor.copy(alpha = 0.03f)
+    val borderColor = MaterialTheme.colorScheme.primary
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, borderColor, RoundedCornerShape(12.dp))
-            .background(bgColor)
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
@@ -129,8 +127,7 @@ fun WordCard(
             )
             Text(
                 text = tier.uppercase(),
-                fontSize = 9.sp,
-                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodySmall,
                 color = tierColor,
                 letterSpacing = 1.5.sp,
                 modifier = Modifier
@@ -173,9 +170,8 @@ fun WordCard(
             Spacer(Modifier.width(8.dp))
             Text(
                 text = "rarity",
-                fontSize = 9.sp,
-                fontFamily = FontFamily.Monospace,
-                color = TextMuted
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }

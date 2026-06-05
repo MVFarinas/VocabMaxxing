@@ -42,21 +42,20 @@ fun DailyScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Surface950)
+          //  .background(Surface950)
             .verticalScroll(scrollState)
             .padding(20.dp)
     ) {
         Text(
-            text = "Daily Elite Trifecta",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+            text = "Words of the Day",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = "Select a word. Construct a precise sentence. Receive analytical feedback.",
-            fontSize = 13.sp,
-            color = TextMuted
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(Modifier.height(24.dp))
 
@@ -193,7 +192,7 @@ fun DailyScreen(
 
         } else {
             // ─── Word Selection ──────────────────────────────────
-            Text("SELECT A WORD", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
+            Text("Select a Word", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                 color = TextMuted, letterSpacing = 1.5.sp)
             Spacer(Modifier.height(12.dp))
 
