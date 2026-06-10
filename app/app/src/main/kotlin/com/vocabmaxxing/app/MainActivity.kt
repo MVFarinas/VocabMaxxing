@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,97 +34,107 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VocabMaxxingTheme {
-                val navController = rememberNavController()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
 
-                val authViewModel: AuthViewModel = viewModel(
-                    factory = object : ViewModelProvider.Factory {
-                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            @Suppress("UNCHECKED_CAST")
-                            return AuthViewModel(app.apiClient, app.tokenManager) as T
+                    val authViewModel: AuthViewModel = viewModel(
+                        factory = object : ViewModelProvider.Factory {
+                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                @Suppress("UNCHECKED_CAST")
+                                return AuthViewModel(app.apiClient, app.tokenManager) as T
+                            }
+                        }
+                    )
+
+                    val authState by authViewModel.uiState.collectAsState()
+                    val startDest =
+                        remember { if (authViewModel.uiState.value.isAuthenticated) "daily" else "auth" }
+
+                    LaunchedEffect(authState.isAuthenticated) {
+                        if (authState.isAuthenticated && startDest == "auth") {
+                            navController.navigate("daily") {
+                                popUpTo("auth") { inclusive = true }
+                            }
                         }
                     }
-                )
 
-                val authState by authViewModel.uiState.collectAsState()
-                val startDest = remember { if (authViewModel.uiState.value.isAuthenticated) "daily" else "auth" }
-
-                LaunchedEffect(authState.isAuthenticated) {
-                    if (authState.isAuthenticated && startDest == "auth") {
-                        navController.navigate("daily") {
-                            popUpTo("auth") { inclusive = true }
+                    NavHost(
+                        navController = navController,
+                        startDestination = startDest
+                    )
+                    {
+                        composable("auth") {
+                            AuthScreen(
+                                onLogin = { email, pw -> authViewModel.login(email, pw) },
+                                onRegister = { email, pw -> authViewModel.register(email, pw) },
+                                isLoading = authState.isLoading,
+                                error = authState.error,
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
-                    }
-                }
 
-                NavHost(
-                    navController = navController,
-                    startDestination = startDest)
-                {
-                    composable("auth") {
-                        AuthScreen(
-                            onLogin = { email, pw -> authViewModel.login(email, pw) },
-                            onRegister = { email, pw -> authViewModel.register(email, pw) },
-                            isLoading = authState.isLoading,
-                            error = authState.error,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    composable("daily") {
-                        val dailyViewModel: DailyViewModel = viewModel(
-                            factory = object : ViewModelProvider.Factory {
-                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                    @Suppress("UNCHECKED_CAST")
-                                    return DailyViewModel(app.apiClient, app.tokenManager) as T
+                        composable("daily") {
+                            val dailyViewModel: DailyViewModel = viewModel(
+                                factory = object : ViewModelProvider.Factory {
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        @Suppress("UNCHECKED_CAST")
+                                        return DailyViewModel(app.apiClient, app.tokenManager) as T
+                                    }
                                 }
-                            }
-                        )
-                        val dailyState by dailyViewModel.uiState.collectAsState()
+                            )
+                            val dailyState by dailyViewModel.uiState.collectAsState()
 
-                        DailyScreen(
-                            words = dailyState.words,
-                            isLoading = dailyState.isLoading,
-                            isSubmitting = dailyState.isSubmitting,
-                            error = dailyState.error,
-                            result = dailyState.result,
-                            onSubmit = { wordId, sentence ->
-                                dailyViewModel.submitSentence(wordId, sentence)
-                            },
-                            onReset = { dailyViewModel.reset() },
-                            onNavigateDashboard = {
-                                navController.navigate("dashboard")
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                            DailyScreen(
+                                words = dailyState.words,
+                                isLoading = dailyState.isLoading,
+                                isSubmitting = dailyState.isSubmitting,
+                                error = dailyState.error,
+                                result = dailyState.result,
+                                onSubmit = { wordId, sentence ->
+                                    dailyViewModel.submitSentence(wordId, sentence)
+                                },
+                                onReset = { dailyViewModel.reset() },
+                                onNavigateDashboard = {
+                                    navController.navigate("dashboard")
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
-                    composable("dashboard") {
-                        val dashViewModel: DashboardViewModel = viewModel(
-                            factory = object : ViewModelProvider.Factory {
-                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                    @Suppress("UNCHECKED_CAST")
-                                    return DashboardViewModel(app.apiClient, app.tokenManager) as T
+                        composable("dashboard") {
+                            val dashViewModel: DashboardViewModel = viewModel(
+                                factory = object : ViewModelProvider.Factory {
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        @Suppress("UNCHECKED_CAST")
+                                        return DashboardViewModel(
+                                            app.apiClient,
+                                            app.tokenManager
+                                        ) as T
+                                    }
                                 }
-                            }
-                        )
-                        val dashState by dashViewModel.uiState.collectAsState()
+                            )
+                            val dashState by dashViewModel.uiState.collectAsState()
 
-                        DashboardScreen(
-                            data = dashState.data,
-                            isLoading = dashState.isLoading,
-                            onNavigateDaily = {
-                                navController.navigate("daily") {
-                                    popUpTo("dashboard") { inclusive = true }
-                                }
-                            },
-                            onLogout = {
-                                authViewModel.logout()
-                                navController.navigate("auth") {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                            DashboardScreen(
+                                data = dashState.data,
+                                isLoading = dashState.isLoading,
+                                onNavigateDaily = {
+                                    navController.navigate("daily") {
+                                        popUpTo("dashboard") { inclusive = true }
+                                    }
+                                },
+                                onLogout = {
+                                    authViewModel.logout()
+                                    navController.navigate("auth") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

@@ -1,6 +1,6 @@
 package com.vocabmaxxing.app.ui.daily
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,9 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vocabmaxxing.app.data.model.EvaluationResponse
@@ -22,7 +24,8 @@ import com.vocabmaxxing.app.ui.components.ScoreBar
 import com.vocabmaxxing.app.ui.components.StatCard
 import com.vocabmaxxing.app.ui.components.WordCard
 import com.vocabmaxxing.app.ui.theme.*
-
+import com.vocabmaxxing.app.R
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyScreen(
     words: List<WordDto>,
@@ -42,25 +45,38 @@ fun DailyScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-          //  .background(Surface950)
             .verticalScroll(scrollState)
-            .padding(20.dp)
+            .padding(horizontal = 10.dp)
     ) {
-        Text(
-            text = "Words of the Day",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground
+        CenterAlignedTopAppBar(
+            title = { Text(text = "Words of the Day",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+              )  },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground
+            )
         )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = "Select a word. Construct a precise sentence. Receive analytical feedback.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+
+
+//        Text(
+//            text = "Select a word. Construct a precise sentence. Receive analytical feedback.",
+//            style = MaterialTheme.typography.bodyMedium,
+//            color = MaterialTheme.colorScheme.onBackground
+//        )
+        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
+            Image(
+                painter = painterResource(id = R.drawable.leaves_light_mode),
+                contentDescription = "Leaf decoration"
+            )
+        }
         Spacer(Modifier.height(24.dp))
 
         if (isLoading) {
-            Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier
+                .fillMaxWidth()
+                .padding(40.dp), contentAlignment = Alignment.Center) {
                 Text("Loading...", color = TextMuted, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
             }
         } else if (result != null) {
@@ -80,9 +96,10 @@ fun DailyScreen(
 
             // User's sentence
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface900)
+
                     .padding(16.dp)
             ) {
                 Text("YOUR SENTENCE", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
@@ -97,7 +114,9 @@ fun DailyScreen(
             Spacer(Modifier.height(16.dp))
 
             // Overall score
-            Column(Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            Column(Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("PRECISION SCORE", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                     color = TextMuted, letterSpacing = 1.5.sp)
@@ -114,9 +133,10 @@ fun DailyScreen(
 
             // Score breakdown
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface900)
+                    //  .background(Surface900)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
@@ -138,9 +158,10 @@ fun DailyScreen(
 
             // AI Feedback
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface900)
+                    //   .background(Surface900)
                     .padding(16.dp)
             ) {
                 Text(
@@ -161,7 +182,7 @@ fun DailyScreen(
                     Text(result.feedback.idiomaticFeedback,
                         fontSize = 14.sp, color = TextSecondary, lineHeight = 22.sp)
                     Spacer(Modifier.height(12.dp))
-                    Divider(color = Color.White.copy(alpha = 0.03f))
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.03f))
                     Spacer(Modifier.height(12.dp))
                     Text("SUGGESTION", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                         color = TextMuted, letterSpacing = 1.5.sp)
@@ -178,13 +199,17 @@ fun DailyScreen(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = { onReset(); selectedWordId = ""; sentence = "" },
-                    modifier = Modifier.weight(1f).height(48.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Accent, contentColor = Surface950),
                     shape = RoundedCornerShape(8.dp)
                 ) { Text("Try Another", fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
                 OutlinedButton(
                     onClick = onNavigateDashboard,
-                    modifier = Modifier.weight(1f).height(48.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                 ) { Text("Dashboard", fontSize = 14.sp) }
@@ -218,9 +243,10 @@ fun DailyScreen(
             if (selectedWord != null) {
                 Spacer(Modifier.height(20.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Surface900)
+                        //        .background(Surface900)
                         .padding(16.dp)
                 ) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -247,7 +273,9 @@ fun DailyScreen(
                     OutlinedTextField(
                         value = sentence,
                         onValueChange = { if (it.length <= 500) sentence = it },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 120.dp),
                         placeholder = {
                             Text("Write a sentence using \"${selectedWord.word}\"...",
                                 color = TextMuted.copy(alpha = 0.4f))
@@ -272,7 +300,9 @@ fun DailyScreen(
                     Button(
                         onClick = { onSubmit(selectedWordId, sentence) },
                         enabled = !isSubmitting && sentence.trim().length >= 10,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Accent, contentColor = Surface950
                         ),

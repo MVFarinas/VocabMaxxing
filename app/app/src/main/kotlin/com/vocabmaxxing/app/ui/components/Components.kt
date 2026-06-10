@@ -121,15 +121,14 @@ fun WordCard(
         ) {
             Text(
                 text = word,
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 text = tier.uppercase(),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = tierColor,
-                letterSpacing = 1.5.sp,
+                letterSpacing = 1.2.sp,
                 modifier = Modifier
                     .border(1.dp, tierColor.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
                     .padding(horizontal = 8.dp, vertical = 2.dp)
@@ -140,15 +139,15 @@ fun WordCard(
         Text(
             text = definition,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onBackground,
             lineHeight = 20.sp
         )
 
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "\u201C$exampleSentence\u201D",
+            text = exampleSentence,
             style = MaterialTheme.typography.bodySmall,
-            color = TextMuted,
+            color = midBrown,
             fontStyle = FontStyle.Italic,
             lineHeight = 18.sp
         )

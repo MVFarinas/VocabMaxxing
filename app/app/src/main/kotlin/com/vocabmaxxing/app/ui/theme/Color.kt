@@ -26,7 +26,7 @@ val TierElite = Color(0xFFA855F7)
 val TierProfessional = Color(0xFF10B981)
 
 // New Theme Colors
-val backgroundLightMode = Color.White
+val backgroundLightMode = Color(0xFFFFFFFF)
 val backgroundDarkMode = Color(0xFF121212)
 val mainGold = Color (0xFFBFA566)
 val mainGreen = Color(0xFFD8DFB1)
