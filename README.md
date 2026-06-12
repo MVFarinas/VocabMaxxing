@@ -19,3 +19,8 @@
 - Kotlin
  
 - User Stories:
+
+## Infrastructure:
+- Backend: Ktor server deployed on Railway
+- Database: PostgreSQL hosted on Supabase (accessed directly via JDBC, not Supabase's API/Auth/Storage)
+- AI Scoring: Groq (Llama 3.3 70B) via OpenAI-compatible chat completions endpoint
