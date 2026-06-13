@@ -23,6 +23,12 @@ import com.vocabmaxxing.app.ui.components.StatCard
 import com.vocabmaxxing.app.ui.components.WordCard
 import com.vocabmaxxing.app.ui.theme.*
 
+// Mirrors the server's invisible-character stripping for instant feedback while
+// typing/pasting. Removes control + format chars (zero-width space/joiner, BOM,
+// RTL/LTR overrides) but keeps tab/newline/CR so normal typing is unaffected.
+// The server (InputSanitizer) remains authoritative and also normalizes.
+private val INVISIBLE_CHARS = Regex("[\\p{Cc}\\p{Cf}&&[^\\t\\n\\r]]")
+
 @Composable
 fun DailyScreen(
     words: List<WordDto>,
@@ -266,7 +272,10 @@ fun DailyScreen(
 
                     OutlinedTextField(
                         value = sentence,
-                        onValueChange = { if (it.length <= 500) sentence = it },
+                        onValueChange = {
+                            val filtered = INVISIBLE_CHARS.replace(it, "")
+                            if (filtered.length <= 500) sentence = filtered
+                        },
                         modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
                         placeholder = {
                             Text("Write a sentence using \"${selectedWord.word}\"...",

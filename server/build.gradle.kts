@@ -35,6 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-rate-limit:$ktorVersion")
 
     // Firebase Admin SDK
     implementation("com.google.firebase:firebase-admin:9.2.0")

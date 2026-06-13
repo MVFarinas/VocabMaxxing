@@ -6,10 +6,12 @@ import com.vocabmaxxing.database.Words
 import com.vocabmaxxing.models.*
 import com.vocabmaxxing.plugins.userId
 import com.vocabmaxxing.services.AiScoringService
+import com.vocabmaxxing.services.InputSanitizer
 import com.vocabmaxxing.services.ScoringEngine
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -17,25 +19,41 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.UUID
 import kotlin.math.roundToInt
+
+private const val MAX_REQUEST_BYTES = 8 * 1024L
 
 fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
 
     authenticate("auth-jwt") {
 
+      rateLimit(RateLimitName("evaluate")) {
+
         post("/api/attempts/evaluate") {
             val userId = call.userId()
-            val request = call.receive<SubmitSentenceRequest>()
 
-            if (request.sentence.length < 10) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Sentence must be at least 10 characters."))
+            // Reject oversized payloads before deserializing the body, so a huge
+            // JSON blob can't be fully parsed into memory just to fail the length
+            // check below. The sentence is capped at 500 chars; 8 KB leaves ample
+            // headroom for the wrapping JSON.
+            val contentLength = call.request.contentLength()
+            if (contentLength != null && contentLength > MAX_REQUEST_BYTES) {
+                call.respond(
+                    HttpStatusCode.PayloadTooLarge,
+                    ErrorResponse("Request body too large.")
+                )
                 return@post
             }
-            if (request.sentence.length > 500) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Sentence must be at most 500 characters."))
-                return@post
+
+            val request = call.receive<SubmitSentenceRequest>()
+
+            val sentence = when (val result = InputSanitizer.sanitizeSentence(request.sentence)) {
+                is InputSanitizer.SanitizeResult.Ok -> result.clean
+                is InputSanitizer.SanitizeResult.Rejected -> {
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(result.reason))
+                    return@post
+                }
             }
 
             // Get the target word
@@ -52,7 +70,7 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
             val definition = word[Words.definition]
 
             // Step 1: Algorithmic evaluation
-            val algo = ScoringEngine.evaluate(request.sentence, targetWord)
+            val algo = ScoringEngine.evaluate(sentence, targetWord)
 
             if (!algo.wordPresent) {
                 call.respond(
@@ -64,7 +82,7 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
 
             // Step 2: AI semantic evaluation
             val semanticResult = AiScoringService.evaluate(
-                targetWord, definition, request.sentence, aiApiKey, aiBaseUrl, aiModel
+                targetWord, definition, sentence, aiApiKey, aiBaseUrl, aiModel
             )
             val aiAvailable = semanticResult != null
 
@@ -88,7 +106,7 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
                     it[id] = attemptId
                     it[Attempts.userId] = userId
                     it[wordId] = request.wordId
-                    it[sentence] = request.sentence
+                    it[Attempts.sentence] = sentence
                     it[Attempts.contextScore] = contextScore
                     it[Attempts.grammarScore] = grammarScore
                     it[Attempts.complexityScore] = complexityScore
@@ -167,5 +185,6 @@ fun Route.attemptRoutes(aiApiKey: String, aiBaseUrl: String, aiModel: String) {
 
             call.respond(HttpStatusCode.OK, response)
         }
+      }
     }
 }
