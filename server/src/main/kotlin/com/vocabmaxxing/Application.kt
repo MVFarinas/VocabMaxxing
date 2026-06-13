@@ -13,11 +13,14 @@ import io.ktor.server.auth.bearer
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.origin
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
+import kotlin.time.Duration.Companion.minutes
 
 fun Application.module() {
 
@@ -51,6 +54,20 @@ fun Application.module() {
     /* ---------------- LOGGING ---------------- */
     install(CallLogging) {
         level = Level.INFO
+    }
+
+    /* ---------------- RATE LIMITING ---------------- */
+    // Protects the paid LLM evaluate endpoint from spam/DoS. Keyed by Firebase
+    // UID (the route is behind auth, so the principal is set before this runs);
+    // falls back to remote host if somehow unauthenticated.
+    // NOTE: 20/min is a loose ceiling for the testing phase; tighten before pilot.
+    install(RateLimit) {
+        register(RateLimitName("evaluate")) {
+            rateLimiter(limit = 20, refillPeriod = 1.minutes)
+            requestKey { call ->
+                call.principal<FirebasePrincipal>()?.uid ?: call.request.origin.remoteHost
+            }
+        }
     }
 
     /* ---------------- ERROR HANDLING ---------------- */
