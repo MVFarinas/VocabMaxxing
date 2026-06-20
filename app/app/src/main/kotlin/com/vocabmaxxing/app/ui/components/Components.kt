@@ -1,13 +1,16 @@
 package com.vocabmaxxing.app.ui.components
 
+import android.R.attr.onClick
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -15,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -103,79 +107,96 @@ fun WordCard(
         "Professional" -> TierProfessional
         else -> TextMuted
     }
-
+    // Normal word card
     val borderColor = MaterialTheme.colorScheme.primary
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    if (!selected) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp))
+                .clickable(onClick = onClick)
+                .padding(16.dp)
         ) {
-            Text(
-                text = word,
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = tier.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = tierColor,
-                letterSpacing = 1.2.sp,
-                modifier = Modifier
-                    .border(1.dp, tierColor.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
-            )
-        }
-
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = definition,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            lineHeight = 20.sp
-        )
-
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = exampleSentence,
-            style = MaterialTheme.typography.bodySmall,
-            color = midBrown,
-            fontStyle = FontStyle.Italic,
-            lineHeight = 18.sp
-        )
-
-        Spacer(Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            for (i in 0 until 10) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (i < rarityScore) Accent.copy(alpha = 0.6f)
-                            else Color.White.copy(alpha = 0.05f)
-                        )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = word,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
-                if (i < 9) Spacer(Modifier.width(3.dp))
+                Text(
+                    text = tier.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = tierColor,
+                    letterSpacing = 1.2.sp,
+                    modifier = Modifier
+                        .border(1.dp, tierColor.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                )
             }
-            Spacer(Modifier.width(8.dp))
+
+            Spacer(Modifier.height(8.dp))
             Text(
-                text = "rarity",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground
+                text = definition,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                lineHeight = 20.sp
             )
+
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = exampleSentence,
+                style = MaterialTheme.typography.bodySmall,
+                color = midBrown,
+                fontStyle = FontStyle.Italic,
+                lineHeight = 18.sp
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                for (i in 0 until 10) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (i < rarityScore) mainGold.copy(alpha = 0.7f)
+                                else MaterialTheme.colorScheme.onBackground
+                            )
+                    )
+                    if (i < 9) Spacer(Modifier.width(3.dp))
+                }
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "rarity",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
-}
-
+    // Enter sentence word card
+    else {
+        FlipCardTransition()
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Text(
+//                text = word,
+//                style = MaterialTheme.typography.headlineLarge,
+//                color = MaterialTheme.colorScheme.onBackground,
+//            )
+//
+//
+//    }
+}}
 // ─── Stat Card ───────────────────────────────────────────────────
 
 @Composable
@@ -219,4 +240,8 @@ fun StatCard(
             )
         }
     }
+}
+@Composable
+fun FlipCardTransition() {
+
 }

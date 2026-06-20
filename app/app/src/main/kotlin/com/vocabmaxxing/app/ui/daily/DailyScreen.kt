@@ -1,16 +1,21 @@
 package com.vocabmaxxing.app.ui.daily
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -42,6 +47,9 @@ fun DailyScreen(
     var sentence by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
+    val wordsCompleted = 0
+
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -49,28 +57,72 @@ fun DailyScreen(
             .padding(horizontal = 10.dp)
     ) {
         CenterAlignedTopAppBar(
-            title = { Text(text = "Words of the Day",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-              )  },
+            title = {
+                Text(
+                    text = "Words of the Day",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            actions = {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(48.dp)
+                ) {
+                    CircularProgressIndicator(
+                        progress = { wordsCompleted/3.toFloat() },
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color(0xFF8B9E5A),
+                        trackColor = Color(0xFF3A3A3A),
+                        strokeWidth = 3.dp
+                    )
+                    Text(
+                        text = "$wordsCompleted of 3",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 10.sp
+                    )
+                }},
+
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 titleContentColor = MaterialTheme.colorScheme.onBackground
-            )
+            ),
+            windowInsets = TopAppBarDefaults.windowInsets,
+            modifier = Modifier.height(80.dp) // tighter than the default ~64-80dp depending on M3 version
         )
+//
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier
+                .fillMaxWidth()
 
-
-//        Text(
-//            text = "Select a word. Construct a precise sentence. Receive analytical feedback.",
-//            style = MaterialTheme.typography.bodyMedium,
-//            color = MaterialTheme.colorScheme.onBackground
-//        )
-        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.leaves_light_mode),
-                contentDescription = "Leaf decoration"
+                contentDescription = "Leaf decoration",
+
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth(0.45f)
             )
         }
+        // Example: Printing to console on a button click or side-effect
+        words.forEach { item ->
+            Log.d("wordList", item.toString()) // Viewable in the Logcat window under your device tab
+        }
+
+
         Spacer(Modifier.height(24.dp))
 
         if (isLoading) {
@@ -81,6 +133,8 @@ fun DailyScreen(
             }
         } else if (result != null) {
             // ─── Result View ─────────────────────────────────────
+
+
             val selectedWord = words.find { it.id == selectedWordId }
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -102,7 +156,7 @@ fun DailyScreen(
 
                     .padding(16.dp)
             ) {
-                Text("YOUR SENTENCE", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
+                Text("Your Sentence", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                     color = TextMuted, letterSpacing = 1.5.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("“$sentence”", fontSize = 14.sp, color = TextSecondary,
@@ -136,7 +190,7 @@ fun DailyScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    //  .background(Surface900)
+
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
@@ -216,10 +270,7 @@ fun DailyScreen(
             }
 
         } else {
-            // ─── Word Selection ──────────────────────────────────
-            Text("Select a Word", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
-                color = TextMuted, letterSpacing = 1.5.sp)
-            Spacer(Modifier.height(12.dp))
+
 
             words.forEach { word ->
                 WordCard(
