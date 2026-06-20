@@ -3,6 +3,7 @@ package com.vocabmaxxing.app.ui.daily
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,9 +18,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +49,10 @@ fun DailyScreen(
     var selectedWordId by remember { mutableStateOf("") }
     var sentence by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+
+    val incomplete = if (isSystemInDarkTheme()) progBarIncompleteDarkMode else progBarIncompleteLightMode
+    val complete = if (isSystemInDarkTheme()) progBarCompleteDarkMode else progBarCompleteLightMode
+
 
     val wordsCompleted = 0
 
@@ -78,20 +85,27 @@ fun DailyScreen(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .size(48.dp)
+                        .size(44.dp)
                 ) {
+
+
                     CircularProgressIndicator(
                         progress = { wordsCompleted/3.toFloat() },
                         modifier = Modifier.fillMaxSize(),
-                        color = Color(0xFF8B9E5A),
-                        trackColor = Color(0xFF3A3A3A),
-                        strokeWidth = 3.dp
+                        color = complete,
+                        trackColor = incomplete,
+                        strokeWidth = 7.dp
                     )
                     Text(
                         text = "$wordsCompleted of 3",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            lineHeight = MaterialTheme.typography.labelSmall.fontSize,
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 10.sp
+                        fontSize = 10.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
                     )
                 }},
 
@@ -102,7 +116,6 @@ fun DailyScreen(
             windowInsets = TopAppBarDefaults.windowInsets,
             modifier = Modifier.height(80.dp) // tighter than the default ~64-80dp depending on M3 version
         )
-//
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
@@ -117,11 +130,6 @@ fun DailyScreen(
                 modifier = Modifier.fillMaxWidth(0.45f)
             )
         }
-        // Example: Printing to console on a button click or side-effect
-        words.forEach { item ->
-            Log.d("wordList", item.toString()) // Viewable in the Logcat window under your device tab
-        }
-
 
         Spacer(Modifier.height(24.dp))
 
@@ -129,11 +137,10 @@ fun DailyScreen(
             Box(Modifier
                 .fillMaxWidth()
                 .padding(40.dp), contentAlignment = Alignment.Center) {
-                Text("Loading...", color = TextMuted, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
+                Text("Loading...", style = MaterialTheme.typography.bodySmall)
             }
         } else if (result != null) {
             // ─── Result View ─────────────────────────────────────
-
 
             val selectedWord = words.find { it.id == selectedWordId }
 
@@ -227,8 +234,7 @@ fun DailyScreen(
 
                 if (!result.aiAvailable) {
                     Text("Semantic analysis unavailable. Partial evaluation shown.",
-                        fontSize = 12.sp, color = ScoreMid.copy(alpha = 0.8f),
-                        fontFamily = FontFamily.Monospace)
+                        style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                 }
 
@@ -238,7 +244,7 @@ fun DailyScreen(
                     Spacer(Modifier.height(12.dp))
                     HorizontalDivider(color = Color.White.copy(alpha = 0.03f))
                     Spacer(Modifier.height(12.dp))
-                    Text("SUGGESTION", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
+                    Text("Suggestion", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                         color = TextMuted, letterSpacing = 1.5.sp)
                     Spacer(Modifier.height(6.dp))
                     Text(result.feedback.improvementSuggestion,
@@ -286,7 +292,7 @@ fun DailyScreen(
             }
 
             if (words.isEmpty()) {
-                Text("No words available.", fontSize = 13.sp, color = TextMuted)
+                Text("No words available.", style =MaterialTheme.typography.bodyMedium)
             }
 
             // ─── Sentence Input ──────────────────────────────────
@@ -329,13 +335,13 @@ fun DailyScreen(
                             .heightIn(min = 120.dp),
                         placeholder = {
                             Text("Write a sentence using \"${selectedWord.word}\"...",
-                                color = TextMuted.copy(alpha = 0.4f))
-                        },
+                                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                            )},
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Accent.copy(alpha = 0.5f),
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                            focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                             cursorColor = Accent
                         ),
                         shape = RoundedCornerShape(8.dp)

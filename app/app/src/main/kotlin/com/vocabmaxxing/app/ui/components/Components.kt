@@ -151,7 +151,7 @@ fun WordCard(
             Text(
                 text = exampleSentence,
                 style = MaterialTheme.typography.bodySmall,
-                color = midBrown,
+                color = if (isSystemInDarkTheme()) lightGoldText else midBrownText,
                 fontStyle = FontStyle.Italic,
                 lineHeight = 18.sp
             )
