@@ -19,12 +19,14 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        // Base URL for the Ktor backend — set API_BASE_URL in local.properties for real devices
+        // Base URL for the Ktor backend. Defaults to the deployed Railway server so the app
+        // works out-of-the-box; override API_BASE_URL in local.properties to point at a local
+        // server (e.g. http://10.0.2.2:8080 for an emulator hitting localhost:8080).
         val localProps = Properties().also { props ->
             rootProject.file("local.properties").takeIf { it.exists() }
                 ?.inputStream()?.use { props.load(it) }
         }
-        val apiBaseUrl = localProps.getProperty("API_BASE_URL", "http://10.0.2.2:8080")
+        val apiBaseUrl = localProps.getProperty("API_BASE_URL", "https://vocabmaxxing-production.up.railway.app")
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
