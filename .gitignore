@@ -18,6 +18,10 @@ captures/
 local.properties
 server/local.properties
 
+# Environment files — secrets, never commit (.env.example template is kept)
+.env
+*.env
+
 # Firebase — contains API keys, do not commit
 google-services.json
 service-account*.json

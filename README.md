@@ -43,3 +43,13 @@ piloting with real users:
 - Backend: Ktor server deployed on Railway
 - Database: PostgreSQL hosted on Supabase (accessed directly via JDBC, not Supabase's API/Auth/Storage)
 - AI Scoring: Groq (Llama 3.3 70B) via OpenAI-compatible chat completions endpoint
+
+## Project structure:
+This repo holds two independent, self-contained Gradle projects. There is no umbrella
+Gradle build at the repo root — **do not open the repo root as a Gradle project.**
+- `app/` — the Android app (frontend). Open **this folder** directly in Android Studio.
+  Android Studio generates the machine-specific `app/local.properties` (`sdk.dir`) on first
+  sync; it is gitignored. Set `API_BASE_URL` there to point at a real backend (defaults to
+  the emulator loopback `http://10.0.2.2:8080`).
+- `server/` — the Ktor backend. Built/deployed by Railway via Docker; no Android SDK needed.
+  Open separately if you need to work on it locally.
