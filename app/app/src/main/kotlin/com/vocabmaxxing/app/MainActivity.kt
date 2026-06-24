@@ -12,7 +12,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.vocabmaxxing.app.ui.auth.AuthScreen
 import com.vocabmaxxing.app.ui.auth.AuthViewModel
+import com.vocabmaxxing.app.ui.auth.ForgotPasswordScreen
+import com.vocabmaxxing.app.ui.auth.ResetPasswordScreen
 import com.vocabmaxxing.app.ui.auth.SignUpScreen
+import com.vocabmaxxing.app.ui.auth.VerificationCodeScreen
 import com.vocabmaxxing.app.ui.daily.DailyScreen
 import com.vocabmaxxing.app.ui.daily.DailyViewModel
 import com.vocabmaxxing.app.ui.dashboard.DashboardScreen
@@ -73,8 +76,7 @@ class MainActivity : ComponentActivity() {
                         AuthScreen(
                             onLogin = { email, pw -> authViewModel.login(email, pw) },
                             onNavigateSignUp = { navController.navigate("signup") },
-                            // TODO(Step 2): navigate to "forgot" route once added.
-                            onForgotPassword = { },
+                            onForgotPassword = { navController.navigate("forgot") },
                             isLoading = authState.isLoading,
                             error = authState.error,
                             modifier = Modifier.fillMaxSize()
@@ -87,6 +89,49 @@ class MainActivity : ComponentActivity() {
                             onNavigateSignIn = { navController.popBackStack() },
                             isLoading = authState.isLoading,
                             error = authState.error,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    composable("forgot") {
+                        ForgotPasswordScreen(
+                            // TODO: wire to a real send-code backend. For now just advance.
+                            onSendCode = { _ -> navController.navigate("verify") },
+                            onNavigateSignIn = {
+                                navController.navigate("auth") {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    composable("verify") {
+                        VerificationCodeScreen(
+                            // TODO: real code verification. For now just advance.
+                            onVerify = { _ -> navController.navigate("reset") },
+                            onNavigateSignIn = {
+                                navController.navigate("auth") {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    composable("reset") {
+                        ResetPasswordScreen(
+                            // TODO: real password reset. For now return to Sign In.
+                            onResetPassword = { _ ->
+                                navController.navigate("auth") {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            },
+                            onNavigateSignIn = {
+                                navController.navigate("auth") {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
