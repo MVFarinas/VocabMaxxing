@@ -15,6 +15,19 @@ val Inter = FontFamily(
     Font(R.font.inter_bold, FontWeight.Bold)
 )
 
+// Auth wireframe fonts (deliberate per-area choice): Raleway = headings,
+// Poppins = labels/buttons/links, Inria Serif = wordmark.
+val Raleway = FontFamily(
+    Font(R.font.raleway_medium, FontWeight.Medium)
+)
+val Poppins = FontFamily(
+    Font(R.font.poppins_regular, FontWeight.Normal),
+    Font(R.font.poppins_medium, FontWeight.Medium)
+)
+val InriaSerif = FontFamily(
+    Font(R.font.inria_serif_bold, FontWeight.Bold)
+)
+
 // Brand colors
 val Surface950 = Color(0xFF080808)
 val Surface900 = Color(0xFF0E0E0E)
@@ -40,13 +53,13 @@ val TierProfessional = Color(0xFF10B981)
 val SignInHeaderBg = Color(0xFFFFFFFF)
 val SignInBodyBg = Color(0xFF2B201A)
 val SignInDividerOlive = Color(0xFFB4BD8A)
-val SignInOlive = Color(0xFFDDE3B4)
+val SignInOlive = Color(0xFFD8DFB1)
 val SignInOliveDim = Color(0xFFC4CC95)
 val SignInFieldBorder = Color(0xFFFFFFFF)
 val SignInFieldFill = Color(0xFF2F2417)
 val SignInTextOnDark = Color(0xFFFFFFFF)
 val SignInMutedOnDark = Color(0xFFB8AFA6)
-val SignInTextOnOlive = Color(0xFF1A1410)
+val SignInTextOnOlive = Color(0xFF000000)
 val SignInLinkBlue = Color(0xFF9CB8C4)
 
 private val DarkColorScheme = darkColorScheme(

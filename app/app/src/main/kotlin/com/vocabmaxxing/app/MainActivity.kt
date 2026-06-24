@@ -66,7 +66,9 @@ class MainActivity : ComponentActivity() {
                     composable("auth") {
                         AuthScreen(
                             onLogin = { email, pw -> authViewModel.login(email, pw) },
-                            onRegister = { email, pw -> authViewModel.register(email, pw) },
+                            // TODO(Step 1/2): navigate to "signup" / "forgot" routes once added.
+                            onNavigateSignUp = { },
+                            onForgotPassword = { },
                             isLoading = authState.isLoading,
                             error = authState.error,
                             modifier = Modifier.fillMaxSize()

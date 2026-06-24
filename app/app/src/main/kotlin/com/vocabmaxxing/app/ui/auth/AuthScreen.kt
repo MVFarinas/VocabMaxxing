@@ -1,285 +1,103 @@
 package com.vocabmaxxing.app.ui.auth
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.sp
-import com.vocabmaxxing.app.R
+import androidx.compose.material3.Text
 import com.vocabmaxxing.app.ui.theme.*
 
-private val HEADER_HEIGHT = 222.dp
-
+/**
+ * Sign In page ("Welcome Back"), Figma frame 242-2808. Sign Up and password
+ * recovery live on their own routes; this screen only logs in and navigates out.
+ */
 @Composable
 fun AuthScreen(
     onLogin: (String, String) -> Unit,
-    onRegister: (String, String) -> Unit,
+    onNavigateSignUp: () -> Unit,
+    onForgotPassword: () -> Unit,
     isLoading: Boolean,
     error: String?,
     modifier: Modifier = Modifier
 ) {
-    var isLoginMode by remember { mutableStateOf(true) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(SignInHeaderBg)
+    AuthScaffold(
+        title = "Welcome Back",
+        modifier = modifier,
+        bottomContent = {
+            SignInRow(
+                prompt = "Don’t have an account?",
+                buttonText = "Sign up",
+                onClick = onNavigateSignUp
+            )
+        }
     ) {
-        // ---- Brown body — fills from below HEADER_HEIGHT down to the bottom ----
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = HEADER_HEIGHT)
-                .zIndex(3f)
-        ) {
-            // Curve + brown background as a single exported PNG (transparent above the curve)
-            Image(
-                painter = painterResource(id = R.drawable.brown_curve_bg),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
+        PillTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = "Email Address",
+            keyboardType = KeyboardType.Email
+        )
 
-            // Dome + laurels at the bottom
-            Image(
-                painter = painterResource(id = R.drawable.dome_laurels),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 9.dp)
-                    .fillMaxWidth(244f / 412f)
-                    .aspectRatio(244f / 138.41f),
-                contentScale = ContentScale.Fit
-            )
+        Spacer(Modifier.height(16.dp))
 
-            // Form column with SpaceBetween (top group anchored top, sign-up row anchored bottom)
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 17.dp)
-                    .padding(top = 48.dp, bottom = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                // ---- Top group ----
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = if (isLoginMode) "Welcome Back" else "Create Account",
-                        fontFamily = Inter,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = SignInTextOnDark,
-                        textAlign = TextAlign.Center
-                    )
+        PillTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = "Password",
+            keyboardType = KeyboardType.Password,
+            isPassword = true
+        )
 
-                    Spacer(Modifier.height(28.dp))
-
-                    PillTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = "Email Address",
-                        keyboardType = KeyboardType.Email
-                    )
-
-                    Spacer(Modifier.height(16.dp))
-
-                    PillTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = "Password",
-                        keyboardType = KeyboardType.Password,
-                        isPassword = true
-                    )
-
-                    if (error != null) {
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = error,
-                            fontFamily = Inter,
-                            fontSize = 13.sp,
-                            color = ScoreLow.copy(alpha = 0.95f),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    Button(
-                        onClick = {
-                            if (isLoginMode) onLogin(email, password)
-                            else onRegister(email, password)
-                        },
-                        enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(67.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SignInOlive,
-                            contentColor = SignInTextOnOlive,
-                            disabledContainerColor = SignInOlive,
-                            disabledContentColor = SignInTextOnOlive
-                        ),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Text(
-                            text = if (isLoading) "Processing..."
-                                   else if (isLoginMode) "Sign in"
-                                   else "Sign up",
-                            fontFamily = Inter,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-
-                    Text(
-                        text = "Forgot your password?",
-                        fontFamily = Inter,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = SignInLinkBlue,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                // ---- Bottom group: Sign up row + dome clearance ----
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = if (isLoginMode) "Don’t have an account?"
-                                   else "Already have an account?",
-                            fontFamily = Inter,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = SignInTextOnDark
-                        )
-                        Button(
-                            onClick = { isLoginMode = !isLoginMode },
-                            modifier = Modifier
-                                .width(137.dp)
-                                .height(52.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = SignInOlive,
-                                contentColor = SignInTextOnOlive
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
-                        ) {
-                            Text(
-                                text = if (isLoginMode) "Sign up" else "Sign in",
-                                fontFamily = Inter,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(160.dp))
-                }
-            }
-        }
-
-        // ---- Header overlay (statue + wordmark) ----
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .zIndex(2f)
-                .padding(start = 0.dp, end = 8.dp, top = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.statue_head),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(257.dp)
-                    .width(182.dp)
-                    .offset(x = (-31).dp, y = 55.dp)
-                    .zIndex(2f),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(Modifier.width(12.dp))
-            Image(
-                painter = painterResource(id = R.drawable.vocabmaxxing_wordmark),
-                contentDescription = "vocabMAXXING",
-                modifier = Modifier
-                    .weight(1f)
-                    .offset(x = (-37).dp, y = 24.dp)
-                    .height(35.dp),
-                contentScale = ContentScale.Fit
+        if (error != null) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = error,
+                fontFamily = Poppins,
+                fontSize = 13.sp,
+                color = ScoreLow.copy(alpha = 0.95f),
+                textAlign = TextAlign.Center
             )
         }
+
+        Spacer(Modifier.height(24.dp))
+
+        PrimaryButton(
+            text = if (isLoading) "Processing..." else "Sign in",
+            onClick = { onLogin(email, password) },
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            text = "Forgot your password?",
+            fontFamily = Poppins,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = SignInLinkBlue,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickableNoRipple(onForgotPassword)
+        )
     }
 }
 
+/** Small helper so the "Forgot your password?" text behaves as a link. */
 @Composable
-private fun PillTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    isPassword: Boolean = false
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(67.dp),
-        label = {
-            Text(
-                text = label,
-                color = SignInMutedOnDark,
-                fontFamily = Inter,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
-            )
-        },
-        textStyle = TextStyle(color = SignInTextOnDark, fontFamily = Inter, fontSize = 16.sp),
-        singleLine = true,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = SignInFieldBorder,
-            unfocusedBorderColor = SignInFieldBorder,
-            focusedTextColor = SignInTextOnDark,
-            unfocusedTextColor = SignInTextOnDark,
-            focusedLabelColor = SignInMutedOnDark,
-            unfocusedLabelColor = SignInMutedOnDark,
-            cursorColor = SignInOlive,
-            focusedContainerColor = SignInFieldFill,
-            unfocusedContainerColor = SignInFieldFill
-        ),
-        shape = RoundedCornerShape(20.dp)
+private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier {
+    val interaction = remember { MutableInteractionSource() }
+    return this.clickable(
+        interactionSource = interaction,
+        indication = null,
+        onClick = onClick
     )
 }
