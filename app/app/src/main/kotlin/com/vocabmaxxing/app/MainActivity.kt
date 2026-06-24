@@ -48,61 +48,63 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     )
-
                     val authState by authViewModel.uiState.collectAsState()
-                    val startDest =
-                        remember { if (authViewModel.uiState.value.isAuthenticated) "daily" else "auth" }
 
                     LaunchedEffect(authState.isAuthenticated) {
-                        if (authState.isAuthenticated && startDest == "auth") {
+                        val current = navController.currentBackStackEntry?.destination?.route
+                        if (authState.isAuthenticated && current == "auth") {
                             navController.navigate("daily") {
                                 popUpTo("auth") { inclusive = true }
+                            }
+                        } else if (!authState.isAuthenticated && current != null && current != "auth") {
+                            navController.navigate("auth") {
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     }
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = startDest
-                    )
-                    {
-                        composable("auth") {
-                            AuthScreen(
-                                onLogin = { email, pw -> authViewModel.login(email, pw) },
-                                onRegister = { email, pw -> authViewModel.register(email, pw) },
-                                isLoading = authState.isLoading,
-                                error = authState.error,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                NavHost(
+                    navController = navController,
+                    startDestination = "auth")
+                {
+                    composable("auth") {
+                        AuthScreen(
+                            onLogin = { email, pw -> authViewModel.login(email, pw) },
+                            onRegister = { email, pw -> authViewModel.register(email, pw) },
+                            isLoading = authState.isLoading,
+                            error = authState.error,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
-                        composable("daily") {
-                            val dailyViewModel: DailyViewModel = viewModel(
-                                factory = object : ViewModelProvider.Factory {
-                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                        @Suppress("UNCHECKED_CAST")
-                                        return DailyViewModel(app.apiClient, app.tokenManager) as T
-                                    }
+                    composable("daily") {
+                        val dailyViewModel: DailyViewModel = viewModel(
+                            factory = object : ViewModelProvider.Factory {
+                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                    @Suppress("UNCHECKED_CAST")
+                                    return DailyViewModel(app.apiClient, app.tokenManager) as T
                                 }
-                            )
-                            val dailyState by dailyViewModel.uiState.collectAsState()
+                            }
+                        )
+                        val dailyState by dailyViewModel.uiState.collectAsState()
 
-                            DailyScreen(
-                                words = dailyState.words,
-                                isLoading = dailyState.isLoading,
-                                isSubmitting = dailyState.isSubmitting,
-                                error = dailyState.error,
-                                result = dailyState.result,
-                                onSubmit = { wordId, sentence ->
-                                    dailyViewModel.submitSentence(wordId, sentence)
-                                },
-                                onReset = { dailyViewModel.reset() },
-                                onNavigateDashboard = {
-                                    navController.navigate("dashboard")
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                        DailyScreen(
+                            words = dailyState.words,
+                            isLoading = dailyState.isLoading,
+                            isSubmitting = dailyState.isSubmitting,
+                            error = dailyState.error,
+                            result = dailyState.result,
+                            onSubmit = { wordId, sentence ->
+                                dailyViewModel.submitSentence(wordId, sentence)
+                            },
+                            onReset = { dailyViewModel.reset() },
+                            onRetry = { dailyViewModel.loadDailyWords() },
+                            onNavigateDashboard = {
+                                navController.navigate("dashboard")
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
                         composable("dashboard") {
                             val dashViewModel: DashboardViewModel = viewModel(

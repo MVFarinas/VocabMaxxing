@@ -39,20 +39,17 @@ data class SubmitSentenceRequest(
 
 @Serializable
 data class ScoreBreakdown(
-    val semanticScore: Int,
-    val structuralScore: Int,
-    val vocabScore: Int,
-    val grammarScore: Int,
-    val totalScore: Int
+    val contextScore: Int,      // 0-15 (AI)
+    val grammarScore: Int,      // 0-30 (AI grammar 0-10 + algo grammar 0-20)
+    val complexityScore: Int,   // 0-35 (AI complexity 0-15 + algo structural 0-20)
+    val vocabScore: Int,        // 0-20 (algo)
+    val totalScore: Int         // 0-100
 )
 
 @Serializable
 data class AiFeedback(
     val idiomaticFeedback: String,
-    val improvementSuggestion: String,
-    val contextScore: Int = 0,
-    val grammarScore: Int = 0,
-    val complexityScore: Int = 0
+    val improvementSuggestion: String
 )
 
 @Serializable
@@ -76,17 +73,17 @@ data class DashboardResponse(
     val streak: Int,
     val totalAttempts: Long,
     val trend: Double,
-    val semanticAvg: Double,
-    val structuralAvg: Double,
+    val contextAvg: Double,
+    val complexityAvg: Double,
     val recentScores: List<ScoreEntry>
 )
 
 @Serializable
 data class ScoreEntry(
     val totalScore: Int,
-    val semanticScore: Int,
-    val structuralScore: Int,
-    val vocabScore: Int,
+    val contextScore: Int,
     val grammarScore: Int,
+    val complexityScore: Int,
+    val vocabScore: Int,
     val createdAt: String
 )

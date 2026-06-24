@@ -60,7 +60,7 @@ class ApiClient {
             if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
-                Result.failure(Exception("Failed to fetch daily words"))
+                Result.failure(Exception("Failed to fetch daily words (HTTP ${response.status.value})"))
             }
         } catch (e: Exception) {
             Result.failure(e)

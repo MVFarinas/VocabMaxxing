@@ -24,9 +24,21 @@ class AuthViewModel(
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.value = _uiState.value.copy(
-            isAuthenticated = tokenManager.isAuthenticated()
-        )
+        viewModelScope.launch {
+            if (!tokenManager.isAuthenticated()) {
+                _uiState.value = _uiState.value.copy(isAuthenticated = false)
+                return@launch
+            }
+            // Firebase says a user is cached — verify they can still mint a
+            // working ID token. A stale/revoked session shows up here as null.
+            val token = tokenManager.getFreshToken()
+            if (token == null) {
+                tokenManager.clearSession()
+                _uiState.value = _uiState.value.copy(isAuthenticated = false)
+            } else {
+                _uiState.value = _uiState.value.copy(isAuthenticated = true)
+            }
+        }
     }
 
     fun login(email: String, password: String) {

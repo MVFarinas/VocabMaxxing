@@ -1,6 +1,5 @@
 package com.vocabmaxxing.app.ui.daily
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,7 +21,6 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +32,14 @@ import com.vocabmaxxing.app.ui.components.WordCard
 import com.vocabmaxxing.app.ui.theme.*
 import com.vocabmaxxing.app.R
 @OptIn(ExperimentalMaterial3Api::class)
+
+// Mirrors the server's invisible-character stripping for instant feedback while
+// typing/pasting. Removes control + format chars (zero-width space/joiner, BOM,
+// RTL/LTR overrides) but keeps tab/newline/CR so normal typing is unaffected.
+// The server (InputSanitizer) remains authoritative and also normalizes.
+private val INVISIBLE_CHARS = Regex("[\\p{Cc}\\p{Cf}&&[^\\t\\n\\r]]")
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyScreen(
     words: List<WordDto>,
@@ -43,6 +49,7 @@ fun DailyScreen(
     result: EvaluationResponse?,
     onSubmit: (wordId: String, sentence: String) -> Unit,
     onReset: () -> Unit,
+    onRetry: () -> Unit,
     onNavigateDashboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -141,7 +148,6 @@ fun DailyScreen(
             }
         } else if (result != null) {
             // ─── Result View ─────────────────────────────────────
-
             val selectedWord = words.find { it.id == selectedWordId }
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -197,22 +203,15 @@ fun DailyScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text("SCORE BREAKDOWN", fontSize = 9.sp, fontFamily = FontFamily.Monospace,
                     color = TextMuted, letterSpacing = 1.5.sp)
-                if (result.feedback != null) {
-                    ScoreBar("Context", result.feedback.contextScore, 15)
-                    ScoreBar("AI Grammar", result.feedback.grammarScore, 10)
-                    ScoreBar("Complexity", result.feedback.complexityScore, 15)
-                } else {
-                    ScoreBar("Semantic Precision", result.scores.semanticScore, 40)
-                }
-                ScoreBar("Structural Complexity", result.scores.structuralScore, 20)
-                ScoreBar("Vocabulary Density", result.scores.vocabScore, 20)
-                ScoreBar("Grammar Stability", result.scores.grammarScore, 20)
+                ScoreBar("Context", result.scores.contextScore, 15)
+                ScoreBar("Grammar", result.scores.grammarScore, 30)
+                ScoreBar("Complexity", result.scores.complexityScore, 35)
+                ScoreBar("Vocabulary", result.scores.vocabScore, 20)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -222,7 +221,6 @@ fun DailyScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    //   .background(Surface900)
                     .padding(16.dp)
             ) {
                 Text(
@@ -292,7 +290,31 @@ fun DailyScreen(
             }
 
             if (words.isEmpty()) {
-                Text("No words available.", style =MaterialTheme.typography.bodyMedium)
+                if (error != null) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Surface900)
+                            .padding(16.dp)
+                    ) {
+                        Text("FAILED TO LOAD", fontSize = 9.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = ScoreLow, letterSpacing = 1.5.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text(error, fontSize = 13.sp,
+                            color = ScoreLow.copy(alpha = 0.9f),
+                            lineHeight = 20.sp)
+                        Spacer(Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = onRetry,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = TextSecondary)
+                        ) { Text("Retry", fontSize = 13.sp) }
+                    }
+                } else {
+                    Text("No words available.", fontSize = 13.sp, color = TextMuted)
+                }
             }
 
             // ─── Sentence Input ──────────────────────────────────
@@ -303,33 +325,39 @@ fun DailyScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        //        .background(Surface900)
                         .padding(16.dp)
                 ) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
-                            Text("COMPOSE YOUR SENTENCE", fontSize = 9.sp,
+                            Text(
+                                "COMPOSE YOUR SENTENCE", fontSize = 9.sp,
                                 fontFamily = FontFamily.Monospace, color = TextMuted,
-                                letterSpacing = 1.5.sp)
+                                letterSpacing = 1.5.sp
+                            )
                             Spacer(Modifier.height(4.dp))
                             Row {
                                 Text("Use ", fontSize = 13.sp, color = TextSecondary)
-                                Text(selectedWord.word, fontSize = 13.sp, color = Accent,
-                                    fontWeight = FontWeight.Medium)
+                                Text(
+                                    selectedWord.word, fontSize = 13.sp, color = Accent,
+                                    fontWeight = FontWeight.Medium
+                                )
                                 Text(" precisely.", fontSize = 13.sp, color = TextSecondary)
                             }
                         }
                         Text(
-                            "${sentence.trim().split(Regex("\\s+")).filter { it.isNotBlank() }.size} words",
+                            "${
+                                sentence.trim().split(Regex("\\s+")).filter { it.isNotBlank()}.size} words",
                             fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = TextMuted
                         )
                     }
-
                     Spacer(Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = sentence,
-                        onValueChange = { if (it.length <= 500) sentence = it },
+                        onValueChange = {
+                            val filtered = INVISIBLE_CHARS.replace(it, "")
+                            if (filtered.length <= 500) sentence = filtered
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 120.dp),

@@ -40,10 +40,10 @@ fun Route.dashboardRoutes() {
                     .map {
                         ScoreEntry(
                             totalScore = it[Attempts.totalScore],
-                            semanticScore = it[Attempts.semanticScore],
-                            structuralScore = it[Attempts.structuralScore],
-                            vocabScore = it[Attempts.vocabScore],
+                            contextScore = it[Attempts.contextScore],
                             grammarScore = it[Attempts.grammarScore],
+                            complexityScore = it[Attempts.complexityScore],
+                            vocabScore = it[Attempts.vocabScore],
                             createdAt = it[Attempts.createdAt].format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                         )
                     }
@@ -71,12 +71,12 @@ fun Route.dashboardRoutes() {
                 val prev7Avg = if (prev7.isNotEmpty()) prev7.average() else 0.0
                 val trend = last7Avg - prev7Avg
 
-                val semanticAvg = if (last7Scores.isNotEmpty()) {
-                    last7Scores.map { it[Attempts.semanticScore] }.average()
+                val contextAvg = if (last7Scores.isNotEmpty()) {
+                    last7Scores.map { it[Attempts.contextScore] }.average()
                 } else 0.0
 
-                val structuralAvg = if (last7Scores.isNotEmpty()) {
-                    last7Scores.map { it[Attempts.structuralScore] }.average()
+                val complexityAvg = if (last7Scores.isNotEmpty()) {
+                    last7Scores.map { it[Attempts.complexityScore] }.average()
                 } else 0.0
 
                 DashboardResponse(
@@ -85,8 +85,8 @@ fun Route.dashboardRoutes() {
                     streak = user[Users.streak],
                     totalAttempts = totalAttempts,
                     trend = (trend * 10).roundToInt() / 10.0,
-                    semanticAvg = (semanticAvg * 10).roundToInt() / 10.0,
-                    structuralAvg = (structuralAvg * 10).roundToInt() / 10.0,
+                    contextAvg = (contextAvg * 10).roundToInt() / 10.0,
+                    complexityAvg = (complexityAvg * 10).roundToInt() / 10.0,
                     recentScores = recentScores
                 )
             }
