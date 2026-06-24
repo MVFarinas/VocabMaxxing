@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.vocabmaxxing.app.ui.auth.AuthScreen
 import com.vocabmaxxing.app.ui.auth.AuthViewModel
+import com.vocabmaxxing.app.ui.auth.SignUpScreen
 import com.vocabmaxxing.app.ui.daily.DailyScreen
 import com.vocabmaxxing.app.ui.daily.DailyViewModel
 import com.vocabmaxxing.app.ui.dashboard.DashboardScreen
@@ -19,6 +20,10 @@ import com.vocabmaxxing.app.ui.dashboard.DashboardViewModel
 import com.vocabmaxxing.app.ui.theme.VocabMaxxingTheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+
+// Pre-authentication routes: while on any of these, the session guard must not
+// bounce the user back to "auth", and reaching an authed state forwards to "daily".
+private val authFlowRoutes = setOf("auth", "signup", "forgot", "verify", "reset")
 
 class MainActivity : ComponentActivity() {
 
@@ -48,11 +53,12 @@ class MainActivity : ComponentActivity() {
                 // with a stale token that can't make API calls.
                 LaunchedEffect(authState.isAuthenticated) {
                     val current = navController.currentBackStackEntry?.destination?.route
-                    if (authState.isAuthenticated && current == "auth") {
+                    val isAuthFlow = current in authFlowRoutes
+                    if (authState.isAuthenticated && isAuthFlow) {
                         navController.navigate("daily") {
                             popUpTo("auth") { inclusive = true }
                         }
-                    } else if (!authState.isAuthenticated && current != null && current != "auth") {
+                    } else if (!authState.isAuthenticated && current != null && !isAuthFlow) {
                         navController.navigate("auth") {
                             popUpTo(0) { inclusive = true }
                         }
@@ -66,9 +72,19 @@ class MainActivity : ComponentActivity() {
                     composable("auth") {
                         AuthScreen(
                             onLogin = { email, pw -> authViewModel.login(email, pw) },
-                            // TODO(Step 1/2): navigate to "signup" / "forgot" routes once added.
-                            onNavigateSignUp = { },
+                            onNavigateSignUp = { navController.navigate("signup") },
+                            // TODO(Step 2): navigate to "forgot" route once added.
                             onForgotPassword = { },
+                            isLoading = authState.isLoading,
+                            error = authState.error,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    composable("signup") {
+                        SignUpScreen(
+                            onRegister = { email, pw -> authViewModel.register(email, pw) },
+                            onNavigateSignIn = { navController.popBackStack() },
                             isLoading = authState.isLoading,
                             error = authState.error,
                             modifier = Modifier.fillMaxSize()
