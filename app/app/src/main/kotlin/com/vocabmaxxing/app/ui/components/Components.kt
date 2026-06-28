@@ -10,18 +10,28 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vocabmaxxing.app.ui.theme.*
@@ -182,7 +192,8 @@ fun WordCard(
     }
     // Enter sentence word card
     else {
-        FlipCardTransition()
+
+        //FlipCardTransition()
 //        Row(
 //            modifier = Modifier.fillMaxWidth(),
 //            horizontalArrangement = Arrangement.SpaceBetween,
@@ -240,6 +251,70 @@ fun StatCard(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavBar(title: String, progressBar: Boolean, wordsCompleted: Int)
+{
+    val incomplete = if (isSystemInDarkTheme()) progBarIncompleteDarkMode else progBarIncompleteLightMode
+    val complete = if (isSystemInDarkTheme()) progBarCompleteDarkMode else progBarCompleteLightMode
+
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "Words of the Day",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        },
+        // only need actions if there is a progress bar on the screen
+        actions = {
+            if (progressBar) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(44.dp)
+            ) {
+
+                CircularProgressIndicator(
+                    progress = { wordsCompleted/3.toFloat() },
+                    modifier = Modifier.fillMaxSize(),
+                    color = complete,
+                    trackColor = incomplete,
+                    strokeWidth = 7.dp
+                )
+                Text(
+                    text = "$wordsCompleted of 3",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        lineHeight = MaterialTheme.typography.labelSmall.fontSize,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
+                )
+            }
+            }},
+
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground
+        ),
+        windowInsets = TopAppBarDefaults.windowInsets,
+        modifier = Modifier.height(80.dp) // tighter than the default ~64-80dp depending on M3 version
+    )
 }
 @Composable
 fun FlipCardTransition() {

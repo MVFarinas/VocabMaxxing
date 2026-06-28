@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     )
+
                     val authState by authViewModel.uiState.collectAsState()
 
                     LaunchedEffect(authState.isAuthenticated) {
