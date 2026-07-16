@@ -33,6 +33,7 @@ fun AuthScreen(
     AuthScaffold(
         title = "Welcome Back",
         modifier = modifier,
+        showDome = true,
         bottomContent = {
             SignInRow(
                 prompt = "Don’t have an account?",
@@ -58,18 +59,7 @@ fun AuthScreen(
             isPassword = true
         )
 
-        if (error != null) {
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = error,
-                fontFamily = Poppins,
-                fontSize = 13.sp,
-                color = ScoreLow.copy(alpha = 0.95f),
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Spacer(Modifier.height(24.dp))
+        ErrorSlot(message = error)
 
         PrimaryButton(
             text = if (isLoading) "Processing..." else "Sign in",

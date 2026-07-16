@@ -4,11 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Text
-import com.vocabmaxxing.app.ui.theme.*
 
 /**
  * Enter New Password (reset) page, Figma frame 283-1327.
@@ -56,18 +52,12 @@ fun ResetPasswordScreen(
             isPassword = true
         )
 
-        if (confirmPassword.isNotBlank() && !passwordsMatch) {
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = "Passwords do not match.",
-                fontFamily = Poppins,
-                fontSize = 13.sp,
-                color = ScoreLow.copy(alpha = 0.95f),
-                textAlign = TextAlign.Center
-            )
+        val message = if (confirmPassword.isNotBlank() && !passwordsMatch) {
+            "Passwords do not match."
+        } else {
+            null
         }
-
-        Spacer(Modifier.height(24.dp))
+        ErrorSlot(message = message)
 
         PrimaryButton(
             text = "Reset Password",

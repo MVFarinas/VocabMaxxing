@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -32,15 +33,17 @@ private val HEADER_HEIGHT = 222.dp
 
 /**
  * Shared chrome for all auth screens, matching the Figma wireframes:
- * statue + wordmark header overlay, brown curve body, dome/laurels footer,
- * and a Raleway-Medium title. Screen-specific content is supplied via [content];
- * the optional [bottomContent] (e.g. the "Have an account?" row) is anchored to
- * the bottom of the scroll column.
+ * statue + wordmark header overlay, brown curve body, an optional dome/laurels
+ * footer ([showDome] — Sign In only per Figma), and a Raleway-Medium title.
+ * Screen-specific content is supplied via [content]; the optional
+ * [bottomContent] (e.g. the "Have an account?" row) is anchored to the bottom
+ * of the scroll column.
  */
 @Composable
 fun AuthScaffold(
     title: String,
     modifier: Modifier = Modifier,
+    showDome: Boolean = false,
     bottomContent: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -63,16 +66,18 @@ fun AuthScaffold(
                 contentScale = ContentScale.FillBounds
             )
 
-            Image(
-                painter = painterResource(id = R.drawable.dome_laurels),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 9.dp)
-                    .fillMaxWidth(244f / 412f)
-                    .aspectRatio(244f / 138.41f),
-                contentScale = ContentScale.Fit
-            )
+            if (showDome) {
+                Image(
+                    painter = painterResource(id = R.drawable.dome_laurels),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 9.dp)
+                        .fillMaxWidth(244f / 412f)
+                        .aspectRatio(244f / 138.41f),
+                    contentScale = ContentScale.Fit
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -143,7 +148,12 @@ fun AuthScaffold(
     }
 }
 
-/** Rounded pill text field (wireframe: #2F2417 fill, white border, 20dp radius, 66.5dp tall). */
+/**
+ * Rounded pill text field (wireframe: #2F2417 fill, white border, 20dp radius,
+ * 66.5dp tall). Persistent inline label per Figma: white Poppins 16 label,
+ * top-anchored inside the pill; typed text renders below it and the label
+ * never floats or cuts the border.
+ */
 @Composable
 fun PillTextField(
     value: String,
@@ -153,37 +163,43 @@ fun PillTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false
 ) {
-    OutlinedTextField(
+    BasicTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
             .fillMaxWidth()
             .height(67.dp),
-        label = {
-            Text(
-                text = label,
-                color = SignInMutedOnDark,
-                fontFamily = Poppins,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
-            )
-        },
-        textStyle = TextStyle(color = SignInTextOnDark, fontFamily = Poppins, fontSize = 16.sp),
+        textStyle = TextStyle(
+            color = SignInTextOnDark,
+            fontFamily = Poppins,
+            fontSize = 16.sp,
+            lineHeight = 20.sp
+        ),
         singleLine = true,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = SignInFieldBorder,
-            unfocusedBorderColor = SignInFieldBorder,
-            focusedTextColor = SignInTextOnDark,
-            unfocusedTextColor = SignInTextOnDark,
-            focusedLabelColor = SignInMutedOnDark,
-            unfocusedLabelColor = SignInMutedOnDark,
-            cursorColor = SignInOlive,
-            focusedContainerColor = SignInFieldFill,
-            unfocusedContainerColor = SignInFieldFill
-        ),
-        shape = RoundedCornerShape(20.dp)
+        cursorBrush = SolidColor(SignInOlive),
+        decorationBox = { innerTextField ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SignInFieldFill, RoundedCornerShape(20.dp))
+                    .border(1.dp, SignInFieldBorder, RoundedCornerShape(20.dp))
+                    .padding(horizontal = 19.dp)
+                    .padding(top = 10.dp)
+            ) {
+                Text(
+                    text = label,
+                    color = SignInTextOnDark,
+                    fontFamily = Poppins,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 20.sp
+                )
+                Spacer(Modifier.height(2.dp))
+                Box(Modifier.fillMaxWidth()) { innerTextField() }
+            }
+        }
     )
 }
 
@@ -215,6 +231,37 @@ fun PrimaryButton(
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium
         )
+    }
+}
+
+private val ERROR_SLOT_HEIGHT = 36.dp
+
+/**
+ * Fixed-height slot for validation/auth errors between the last field and the
+ * CTA. Always occupies [ERROR_SLOT_HEIGHT] so showing/hiding an error never
+ * shifts the CTA or the bottom row. Sized for two lines of Poppins 13sp at
+ * 16sp line height.
+ */
+@Composable
+fun ErrorSlot(message: String?, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(ERROR_SLOT_HEIGHT),
+        contentAlignment = Alignment.Center
+    ) {
+        if (message != null) {
+            Text(
+                text = message,
+                fontFamily = Poppins,
+                fontSize = 13.sp,
+                lineHeight = 16.sp,
+                color = ScoreLow.copy(alpha = 0.95f),
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
