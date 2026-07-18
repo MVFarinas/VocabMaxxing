@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,18 +33,16 @@ fun AuthScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Spacers follow the Figma frame (242-2808) element tops: email 344,
+    // password 429.5, CTA 515, link 601, footer row 663.
     AuthScaffold(
         title = "Welcome Back",
+        titleTopPadding = 75.dp,
         modifier = modifier,
-        showDome = true,
-        bottomContent = {
-            SignInRow(
-                prompt = "Don’t have an account?",
-                buttonText = "Sign up",
-                onClick = onNavigateSignUp
-            )
-        }
+        showDome = true
     ) {
+        Spacer(Modifier.height(12.dp))
+
         PillTextField(
             value = email,
             onValueChange = { email = it },
@@ -49,7 +50,7 @@ fun AuthScreen(
             keyboardType = KeyboardType.Email
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(18.5.dp))
 
         PillTextField(
             value = password,
@@ -59,7 +60,9 @@ fun AuthScreen(
             isPassword = true
         )
 
-        ErrorSlot(message = error)
+        Spacer(Modifier.height(18.5.dp))
+
+        AuthErrorText(message = error)
 
         PrimaryButton(
             text = if (isLoading) "Processing..." else "Sign in",
@@ -67,7 +70,7 @@ fun AuthScreen(
             enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(19.dp))
 
         Text(
             text = "Forgot your password?",
@@ -76,7 +79,23 @@ fun AuthScreen(
             fontWeight = FontWeight.Normal,
             color = SignInLinkBlue,
             textAlign = TextAlign.Center,
+            lineHeight = 24.sp,
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.None
+                )
+            ),
             modifier = Modifier.clickableNoRipple(onForgotPassword)
+        )
+
+        Spacer(Modifier.height(38.dp))
+
+        SignInRow(
+            prompt = "Don’t have an account?",
+            buttonText = "Sign up",
+            onClick = onNavigateSignUp
         )
     }
 }

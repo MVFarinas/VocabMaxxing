@@ -28,24 +28,22 @@ fun SignUpScreen(
     val canSubmit = !isLoading && name.isNotBlank() && email.isNotBlank() &&
         password.isNotBlank() && confirmPassword.isNotBlank() && passwordsMatch
 
+    // Spacers follow the Figma frame (200-30) element tops: name 329,
+    // email 409, password 491.5, confirm 580, CTA 662, footer row 779.
     AuthScaffold(
         title = "Create An Account",
-        modifier = modifier,
-        bottomContent = {
-            SignInRow(
-                prompt = "Have an account?",
-                buttonText = "Sign In",
-                onClick = onNavigateSignIn
-            )
-        }
+        titleTopPadding = 61.dp,
+        modifier = modifier
     ) {
+        Spacer(Modifier.height(11.dp))
+
         PillTextField(
             value = name,
             onValueChange = { name = it },
             label = "Name"
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(13.dp))
 
         PillTextField(
             value = email,
@@ -54,7 +52,7 @@ fun SignUpScreen(
             keyboardType = KeyboardType.Email
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(15.5.dp))
 
         PillTextField(
             value = password,
@@ -64,7 +62,7 @@ fun SignUpScreen(
             isPassword = true
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(21.5.dp))
 
         PillTextField(
             value = confirmPassword,
@@ -74,17 +72,27 @@ fun SignUpScreen(
             isPassword = true
         )
 
+        Spacer(Modifier.height(15.dp))
+
         val message = when {
             error != null -> error
             confirmPassword.isNotBlank() && !passwordsMatch -> "Passwords do not match."
             else -> null
         }
-        ErrorSlot(message = message)
+        AuthErrorText(message = message)
 
         PrimaryButton(
             text = if (isLoading) "Processing..." else "Create Account",
             onClick = { onRegister(email, password) },
             enabled = canSubmit
+        )
+
+        Spacer(Modifier.height(50.dp))
+
+        SignInRow(
+            prompt = "Have an account?",
+            buttonText = "Sign In",
+            onClick = onNavigateSignIn
         )
     }
 }

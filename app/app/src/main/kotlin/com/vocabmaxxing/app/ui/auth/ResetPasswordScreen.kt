@@ -23,17 +23,15 @@ fun ResetPasswordScreen(
     val passwordsMatch = password == confirmPassword
     val canSubmit = password.isNotBlank() && confirmPassword.isNotBlank() && passwordsMatch
 
+    // Spacers follow the Figma frame (283-1327) element tops: field 367,
+    // confirm 450, CTA 536, footer row 664.
     AuthScaffold(
         title = "Enter New Password",
-        modifier = modifier,
-        bottomContent = {
-            SignInRow(
-                prompt = "Have an account?",
-                buttonText = "Sign In",
-                onClick = onNavigateSignIn
-            )
-        }
+        titleTopPadding = 76.dp,
+        modifier = modifier
     ) {
+        Spacer(Modifier.height(34.dp))
+
         PillTextField(
             value = password,
             onValueChange = { password = it },
@@ -52,17 +50,27 @@ fun ResetPasswordScreen(
             isPassword = true
         )
 
+        Spacer(Modifier.height(19.dp))
+
         val message = if (confirmPassword.isNotBlank() && !passwordsMatch) {
             "Passwords do not match."
         } else {
             null
         }
-        ErrorSlot(message = message)
+        AuthErrorText(message = message)
 
         PrimaryButton(
             text = "Reset Password",
             onClick = { onResetPassword(password) },
             enabled = canSubmit
+        )
+
+        Spacer(Modifier.height(61.dp))
+
+        SignInRow(
+            prompt = "Have an account?",
+            buttonText = "Sign In",
+            onClick = onNavigateSignIn
         )
     }
 }

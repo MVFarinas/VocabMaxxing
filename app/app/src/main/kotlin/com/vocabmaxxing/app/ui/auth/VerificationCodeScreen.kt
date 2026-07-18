@@ -23,29 +23,35 @@ fun VerificationCodeScreen(
 ) {
     var code by remember { mutableStateOf("") }
 
+    // Spacers follow the Figma frame (281-30) element tops: OTP row 372,
+    // CTA 461, footer row 591.
     AuthScaffold(
         title = "Enter Verification Code",
-        modifier = modifier,
-        bottomContent = {
-            SignInRow(
-                prompt = "Have an account?",
-                buttonText = "Sign In",
-                onClick = onNavigateSignIn
-            )
-        }
+        titleTopPadding = 76.dp,
+        modifier = modifier
     ) {
+        Spacer(Modifier.height(39.dp))
+
         VerificationCodeInput(
             value = code,
             onValueChange = { code = it },
             length = CODE_LENGTH
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(34.5.dp))
 
         PrimaryButton(
             text = "Verify Code",
             onClick = { onVerify(code) },
             enabled = code.length == CODE_LENGTH
+        )
+
+        Spacer(Modifier.height(63.dp))
+
+        SignInRow(
+            prompt = "Have an account?",
+            buttonText = "Sign In",
+            onClick = onNavigateSignIn
         )
     }
 }

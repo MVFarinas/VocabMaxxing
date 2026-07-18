@@ -20,17 +20,15 @@ fun ForgotPasswordScreen(
 ) {
     var email by remember { mutableStateOf("") }
 
+    // Spacers follow the Figma frame (202-88) element tops: email 367,
+    // CTA 461, footer row 594.
     AuthScaffold(
         title = "Forgot Password?",
-        modifier = modifier,
-        bottomContent = {
-            SignInRow(
-                prompt = "Have an account?",
-                buttonText = "Sign In",
-                onClick = onNavigateSignIn
-            )
-        }
+        titleTopPadding = 76.dp,
+        modifier = modifier
     ) {
+        Spacer(Modifier.height(34.dp))
+
         PillTextField(
             value = email,
             onValueChange = { email = it },
@@ -38,12 +36,20 @@ fun ForgotPasswordScreen(
             keyboardType = KeyboardType.Email
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(27.dp))
 
         PrimaryButton(
             text = "Send Verification Code",
             onClick = { onSendCode(email) },
             enabled = email.isNotBlank()
+        )
+
+        Spacer(Modifier.height(66.dp))
+
+        SignInRow(
+            prompt = "Have an account?",
+            buttonText = "Sign In",
+            onClick = onNavigateSignIn
         )
     }
 }

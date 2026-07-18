@@ -23,6 +23,7 @@ import com.vocabmaxxing.app.ui.dashboard.DashboardViewModel
 import com.vocabmaxxing.app.ui.theme.VocabMaxxingTheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.flow.collect
 
 // Pre-authentication routes: while on any of these, the session guard must not
 // bounce the user back to "auth", and reaching an authed state forwards to "daily".
@@ -49,6 +50,16 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val authState by authViewModel.uiState.collectAsState()
+
+                // A failed login/registration error must not follow the user
+                // to another screen (the AuthViewModel is shared across the
+                // auth flow) — clear it on every destination change, which
+                // covers both button navigation and the system back gesture.
+                LaunchedEffect(navController) {
+                    navController.currentBackStackEntryFlow.collect {
+                        authViewModel.clearError()
+                    }
+                }
 
                 // Always start at "auth". AuthViewModel verifies the cached
                 // session asynchronously; if valid, the LaunchedEffect below

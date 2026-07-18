@@ -77,6 +77,15 @@ class AuthViewModel(
         }
     }
 
+    /**
+     * Clears any lingering auth error. Called on navigation between auth
+     * screens so a failure on one screen doesn't show on another (the
+     * ViewModel is shared across the whole auth flow).
+     */
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
     private suspend fun syncUserWithBackend() {
         val token = tokenManager.getFreshToken() ?: return
         apiClient.syncUser(token)
